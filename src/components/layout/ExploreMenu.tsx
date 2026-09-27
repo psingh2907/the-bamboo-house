@@ -7,7 +7,7 @@ import { navItems } from "@/data/navigation";
 import { type Locale, localePath } from "@/i18n";
 import { t } from "@/i18n/dictionaries";
 import { cn } from "@/lib/cn";
-import { directionsUrl, phoneDisplay, phoneHref, whatsappHref } from "@/lib/contact";
+import { directionsUrl, phoneDisplay, phoneHref, socialLinks, whatsappHref } from "@/lib/contact";
 import { getLenis } from "@/lib/motion";
 import { Icon } from "../ui/Icon";
 import { OpenStatus } from "../ui/OpenStatus";
@@ -190,6 +190,23 @@ export function ExploreMenu({ locale }: { locale: Locale }) {
               </TrackedLink>
             </div>
             <OpenStatus locale={locale} className="mt-6 text-sm text-mist" />
+            {socialLinks.length > 0 && (
+              <div className="mt-5 flex items-center justify-center gap-3 text-sm text-mist">
+                <span className="font-hand text-lg">{text.explore.follow}</span>
+                {socialLinks.map((social) => (
+                  <TrackedLink
+                    key={social.label}
+                    href={social.href}
+                    external
+                    aria-label={social.label}
+                    track={{ event: "social_click", params: { network: social.label, location: "explore_menu" } }}
+                    className="inline-flex size-10 items-center justify-center rounded-full border border-cream/25 text-cream hover:border-bamboo hover:text-bamboo-light"
+                  >
+                    <Icon name={social.icon} className="size-[1.1rem]" />
+                  </TrackedLink>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </dialog>

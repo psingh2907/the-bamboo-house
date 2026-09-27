@@ -76,7 +76,10 @@ export const business = {
   rating: { value: 4.7, count: 49, source: "Google" },
 
   socials: {
-    instagram: "{{INSTAGRAM_URL}}",
+    // VERIFIED — "Bamboo House Official" (@the_bamboohouse_resort), given by the
+    // client, 27 Sep 2026. Note the handle says "resort": ask whether there
+    // are rooms / stays (owner checklist).
+    instagram: "https://www.instagram.com/the_bamboohouse_resort/",
     facebook: "{{FACEBOOK_URL}}",
   },
 } as const;

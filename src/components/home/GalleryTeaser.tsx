@@ -1,6 +1,10 @@
 import { gallery } from "@/data/gallery";
 import { cn } from "@/lib/cn";
+import { business } from "@/data/business";
+import { instagramHandle } from "@/lib/contact";
 import { Button } from "../ui/Button";
+import { Icon } from "../ui/Icon";
+import { TrackedLink } from "../ui/TrackedLink";
 import { Media } from "../ui/Media";
 import { SectionHeading } from "../ui/SectionHeading";
 import type { Locale } from "@/i18n";
@@ -35,10 +39,23 @@ export function GalleryTeaser({ locale = "en" }: { locale?: Locale }) {
               </span>
             }
           />
-          <div data-reveal className="shrink-0">
+          <div data-reveal className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center">
             <Button href="/gallery" variant="outline">
               {text.cta}
             </Button>
+            {instagramHandle && (
+              <TrackedLink
+                href={business.socials.instagram}
+                external
+                track={{ event: "social_click", params: { network: "Instagram", location: "gallery_teaser" } }}
+                className="group inline-flex min-h-12 items-center gap-2.5 rounded-full px-2 text-sm text-mist transition-colors hover:text-bamboo-light"
+              >
+                <Icon name="instagram" className="size-5 text-bamboo" />
+                <span>
+                  {text.instagram} <span className="text-cream group-hover:text-bamboo-light">{instagramHandle}</span>
+                </span>
+              </TrackedLink>
+            )}
           </div>
         </div>
 

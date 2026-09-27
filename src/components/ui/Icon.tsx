@@ -42,6 +42,14 @@ const paths = {
     </>
   ),
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+  instagram: (
+    <>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" />
+    </>
+  ),
+  facebook: <path d="M14 8.5h2.5V5H14a3.5 3.5 0 0 0-3.5 3.5V11H8v3.5h2.5V21H14v-6.5h2.5L17 11h-3V9a.5.5 0 0 1 .5-.5z" />,
   star: <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" />,
   chevronLeft: <path d="M15 5l-7 7 7 7" />,
   chevronRight: <path d="M9 5l7 7-7 7" />,

@@ -33,6 +33,7 @@ const en = {
     copied: "Copied",
     whatsapp: "WhatsApp",
     directions: "Directions",
+    follow: "Follow us",
   },
   actionBar: { label: "Quick actions", call: "Call", directions: "Directions", whatsapp: "WhatsApp" },
   banner: {
@@ -109,7 +110,7 @@ const en = {
     call: "Call us for the best route",
     note: "Attractions as promoted by Madhya Pradesh Tourism. Check park timings and permits before you travel.",
   },
-  gallery: { eyebrow: "07 — Gallery", title: ["Take a ", "look inside", "."], cta: "Open the gallery" },
+  gallery: { eyebrow: "07 — Gallery", title: ["Take a ", "look inside", "."], cta: "Open the gallery", instagram: "More on Instagram" },
   table: {
     eyebrow: "08 — Your table",
     title: ["How many ", "of you", "?"],
@@ -273,6 +274,7 @@ const hi: Dictionary = {
     copied: "कॉपी हो गया",
     whatsapp: "WhatsApp",
     directions: "रास्ता",
+    follow: "हमें फ़ॉलो करें",
   },
   actionBar: { label: "जल्दी के काम", call: "कॉल करें", directions: "रास्ता देखें", whatsapp: "WhatsApp" },
   banner: {
@@ -349,7 +351,7 @@ const hi: Dictionary = {
     call: "सबसे अच्छे रास्ते के लिए कॉल करें",
     note: "मध्य प्रदेश पर्यटन द्वारा बताई गई जगहें। यात्रा से पहले पार्क का समय और परमिट ज़रूर देख लें।",
   },
-  gallery: { eyebrow: "07 — गैलरी", title: ["अंदर की एक ", "झलक", "।"], cta: "गैलरी देखें (English)" },
+  gallery: { eyebrow: "07 — गैलरी", title: ["अंदर की एक ", "झलक", "।"], cta: "गैलरी देखें (English)", instagram: "Instagram पर और देखें" },
   table: {
     eyebrow: "08 — आपकी टेबल",
     title: ["आप ", "कितने", " लोग हैं?"],

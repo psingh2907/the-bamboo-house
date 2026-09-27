@@ -16,6 +16,11 @@ UNCONFIRMED / DEMO.
   - [ ] Confirm hours for every day (only Sunday 11 am–9:30 pm was visible).
   - [ ] Add menu, attributes (veg/non-veg, parking, family-friendly, seating).
 - [ ] Confirm the **WhatsApp number** (the site assumes 079876 29286).
+- [ ] **Is it a resort?** The Instagram handle is `@the_bamboohouse_resort`
+      ("Bamboo House Official"). If there are rooms or stays, the site's
+      positioning, pages and schema (`LodgingBusiness`) should change — ask first.
+- [ ] Facebook page and any other profiles (YouTube, Zomato, Swiggy, Justdial,
+      Tripadvisor) → `business.socials`. Instagram is added.
 
 ## 2. Content questions (from the strategy, §46)
 

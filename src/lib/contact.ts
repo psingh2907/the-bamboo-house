@@ -38,7 +38,12 @@ export function addressText(locale: Locale = "en"): string {
 
 export const socialLinks = (
   [
-    { label: "Instagram", href: business.socials.instagram },
-    { label: "Facebook", href: business.socials.facebook },
+    { label: "Instagram", icon: "instagram", href: business.socials.instagram },
+    { label: "Facebook", icon: "facebook", href: business.socials.facebook },
   ] as const
 ).filter((link) => isConfigured(link.href));
+
+/** "@the_bamboohouse_resort" from the Instagram URL (null until configured). */
+export const instagramHandle = isConfigured(business.socials.instagram)
+  ? `@${business.socials.instagram.replace(/\/+$/, "").split("/").pop()}`
+  : null;

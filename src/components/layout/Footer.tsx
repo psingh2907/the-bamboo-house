@@ -6,6 +6,7 @@ import { t } from "@/i18n/dictionaries";
 import { addressText, phoneDisplay, phoneHref, placeUrl, socialLinks } from "@/lib/contact";
 import { hoursText } from "@/lib/hours";
 import { TigerGame } from "../game/TigerGame";
+import { Icon } from "../ui/Icon";
 import { TrackedLink } from "../ui/TrackedLink";
 import { Brand } from "./Brand";
 
@@ -51,13 +52,22 @@ export function Footer({ locale = "en" }: { locale?: Locale }) {
                 {text.reviews} ↗
               </TrackedLink>
             </p>
-            {socialLinks.map((social) => (
-              <p key={social.label}>
-                <TrackedLink href={social.href} external track={{ event: "social_click", params: { network: social.label } }} className="hover:text-bamboo-light">
-                  {social.label} ↗
-                </TrackedLink>
+            {socialLinks.length > 0 && (
+              <p className="flex gap-2 pt-1">
+                {socialLinks.map((social) => (
+                  <TrackedLink
+                    key={social.label}
+                    href={social.href}
+                    external
+                    aria-label={social.label}
+                    track={{ event: "social_click", params: { network: social.label, location: "footer" } }}
+                    className="inline-flex size-10 items-center justify-center rounded-full border border-cream/20 text-cream transition-colors hover:border-bamboo hover:text-bamboo-light"
+                  >
+                    <Icon name={social.icon} className="size-[1.1rem]" />
+                  </TrackedLink>
+                ))}
               </p>
-            ))}
+            )}
           </div>
 
           <nav aria-label={text.explore} className="space-y-3 text-sm">
