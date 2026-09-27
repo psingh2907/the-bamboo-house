@@ -17,7 +17,8 @@ export type AnalyticsEvent =
   | "google_reviews_click"
   | "social_click"
   | "game_start"
-  | "game_over";
+  | "game_over"
+  | "game_share";
 
 export type AnalyticsParams = Record<string, string | number | boolean | undefined>;
 

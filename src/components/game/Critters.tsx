@@ -1,11 +1,13 @@
 /** Flat animal faces for "Spot the Tiger". Drawn to read clearly at ~60px. */
 
-export type CritterKind = "tiger" | "deer" | "peacock";
+export type CritterKind = "tiger" | "golden" | "deer" | "peacock";
 
 export function CritterFace({ kind }: { kind: CritterKind }) {
   switch (kind) {
     case "tiger":
       return <Tiger />;
+    case "golden":
+      return <Tiger golden />;
     case "deer":
       return <Deer />;
     case "peacock":
@@ -13,19 +15,23 @@ export function CritterFace({ kind }: { kind: CritterKind }) {
   }
 }
 
-function Tiger() {
+/** The tiger; `golden` is the rare bonus tiger (gold coat, bronze stripes, sparkles). */
+function Tiger({ golden = false }: { golden?: boolean }) {
+  const coat = golden ? "#f2c14e" : "#e5862e";
+  const ear = golden ? "#e0a92f" : "#d9731f";
+  const stripe = golden ? "#8a5a12" : "#1d1711";
   return (
-    <svg viewBox="0 0 100 100" className="size-full" aria-hidden="true">
-      <circle cx="21" cy="24" r="14" fill="#d9731f" />
-      <circle cx="79" cy="24" r="14" fill="#d9731f" />
+    <svg viewBox="0 0 100 100" className="size-full overflow-visible" aria-hidden="true">
+      <circle cx="21" cy="24" r="14" fill={ear} />
+      <circle cx="79" cy="24" r="14" fill={ear} />
       <circle cx="21" cy="24" r="7" fill="#2a1c12" />
       <circle cx="79" cy="24" r="7" fill="#2a1c12" />
-      <ellipse cx="50" cy="56" rx="41" ry="37" fill="#e5862e" />
+      <ellipse cx="50" cy="56" rx="41" ry="37" fill={coat} />
       {/* Stripes */}
-      <path d="M50 20 L44 34 L56 34 Z" fill="#1d1711" />
-      <path d="M36 24 L34 36 L40 35 Z M64 24 L66 36 L60 35 Z" fill="#1d1711" />
-      <path d="M9 50 L24 53 L10 58 Z M11 64 L25 64 L13 71 Z" fill="#1d1711" />
-      <path d="M91 50 L76 53 L90 58 Z M89 64 L75 64 L87 71 Z" fill="#1d1711" />
+      <path d="M50 20 L44 34 L56 34 Z" fill={stripe} />
+      <path d="M36 24 L34 36 L40 35 Z M64 24 L66 36 L60 35 Z" fill={stripe} />
+      <path d="M9 50 L24 53 L10 58 Z M11 64 L25 64 L13 71 Z" fill={stripe} />
+      <path d="M91 50 L76 53 L90 58 Z M89 64 L75 64 L87 71 Z" fill={stripe} />
       {/* Muzzle and cheeks */}
       <ellipse cx="36" cy="70" rx="17" ry="13" fill="#fbf1df" />
       <ellipse cx="64" cy="70" rx="17" ry="13" fill="#fbf1df" />
@@ -42,6 +48,12 @@ function Tiger() {
         <line x1="30" y1="72" x2="14" y2="70" />
         <line x1="70" y1="72" x2="86" y2="70" />
       </g>
+      {golden && (
+        <g fill="#fff6d8" className="golden-sparkle">
+          <path d="M88 8 L91 16 L99 19 L91 22 L88 30 L85 22 L77 19 L85 16 Z" />
+          <path d="M10 82 L12 87 L17 89 L12 91 L10 96 L8 91 L3 89 L8 87 Z" />
+        </g>
+      )}
     </svg>
   );
 }

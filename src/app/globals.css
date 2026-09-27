@@ -469,3 +469,95 @@ html:lang(hi) :is(.label, .font-semibold, strong, b) {
 html:lang(en) :lang(hi) {
   font-family: "Kohinoor Devanagari", "Noto Sans Devanagari", "Nirmala UI", "Mangal", sans-serif;
 }
+
+/* ─── Spot the Tiger: dusk → night, combos, golden tiger ──────────────── */
+.tiger-field .game-sky {
+  background: linear-gradient(180deg, #0b1024 0%, #1a1433 55%, #120d18 100%);
+  opacity: 0;
+  mix-blend-mode: multiply;
+  transition: opacity 2.5s var(--ease-soft);
+}
+
+.tiger-field[data-phase="dusk"] .game-sky {
+  opacity: 0.45;
+}
+
+.tiger-field[data-phase="night"] .game-sky {
+  opacity: 0.8;
+}
+
+.tiger-field .game-lanterns {
+  opacity: 0;
+  transition: opacity 2s var(--ease-soft) 0.6s;
+}
+
+.tiger-field[data-phase="night"] .game-lanterns {
+  opacity: 1;
+}
+
+.lantern-glow {
+  animation: lantern-flicker 3.2s ease-in-out infinite;
+}
+
+@keyframes lantern-flicker {
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+  45% {
+    opacity: 0.4;
+  }
+  60% {
+    opacity: 0.3;
+  }
+}
+
+/* At night the animals catch the lantern light. */
+.tiger-field[data-phase="night"] .critter svg {
+  filter: drop-shadow(0 0 10px rgba(255, 190, 90, 0.55));
+}
+
+.golden-sparkle {
+  animation: sparkle 0.9s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+@keyframes sparkle {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.combo-chip {
+  animation: combo-in 0.4s var(--ease-expo);
+}
+
+@keyframes combo-in {
+  from {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+.phase-note {
+  animation: phase-note 2.6s var(--ease-soft) forwards !important;
+}
+
+@keyframes phase-note {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  20%,
+  70% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}

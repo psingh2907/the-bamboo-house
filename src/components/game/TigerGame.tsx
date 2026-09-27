@@ -6,8 +6,10 @@ import { t } from "@/i18n/dictionaries";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 import { getLenis } from "@/lib/motion";
+import { Icon } from "../ui/Icon";
 import { Accent } from "../ui/Accent";
 import { CritterFace, type CritterKind } from "./Critters";
+import { buzz, ForestAudio, readSoundPref, saveSoundPref } from "./sound";
 
 /**
  * "Spot the Tiger" — a footer game in the spirit of Panna Tiger Reserve.
@@ -19,9 +21,15 @@ import { CritterFace, type CritterKind } from "./Critters";
  * a "Freeze scroll" toggle that centres the game and locks the page — handy
  * on phones, where a thumb near the edge can scroll mid-game — and a ••• menu
  * with Restart / Quit.
+ *
+ * Extras: synthesised forest sound (sound.ts) with a remembered mute toggle,
+ * phone vibration, a rare golden tiger (+5), combos (5 in a row ×2, 12 in a
+ * row ×3) and a forest that turns from day to dusk to night as the score
+ * climbs. Game over offers a WhatsApp / native share of the score.
  */
 
 type Status = "idle" | "playing" | "over";
+type Phase = "day" | "dusk" | "night";
 type Side = "l" | "r";
 
 interface Critter {
@@ -50,11 +58,22 @@ const WIDE = [7, 21, 35, 50, 65, 79, 93];
 const NARROW = [10, 30, 50, 70, 90];
 const NODE_SPACING = [118, 96, 132, 104, 124, 90, 112];
 
-function pickKind(spawned: number): CritterKind {
+const DUSK_AT = 12;
+const NIGHT_AT = 25;
+
+const phaseFor = (score: number): Phase => (score >= NIGHT_AT ? "night" : score >= DUSK_AT ? "dusk" : "day");
+
+/** Points multiplier for the current streak of tigers. */
+const multiplierFor = (streak: number) => (streak >= 12 ? 3 : streak >= 5 ? 2 : 1);
+
+function pickKind(spawned: number, score: number): CritterKind {
   if (spawned < 3) return "tiger";
   const r = Math.random();
+  if (score >= 4 && r < 0.06) return "golden";
   return r < 0.68 ? "tiger" : r < 0.88 ? "deer" : "peacock";
 }
+
+const isTiger = (kind: CritterKind) => kind === "tiger" || kind === "golden";
 
 function readBest(): number {
   try {
@@ -92,6 +111,9 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
   const [beatBest, setBeatBest] = useState(false);
   const [frozen, setFrozen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [streak, setStreak] = useState(0);
+  const [phaseNote, setPhaseNote] = useState<{ id: number; text: string } | null>(null);
+  const [soundChoice, setSoundChoice] = useState<boolean | null>(null);
 
   const field = useRef<HTMLDivElement>(null);
   const nextId = useRef(0);
@@ -99,6 +121,13 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
   const scoreRef = useRef(0);
   const livesRef = useRef(LIVES);
   const settled = useRef(new Set<number>());
+  const streakRef = useRef(0);
+  const audio = useRef<ForestAudio | null>(null);
+
+  // Sound preference: remembered in localStorage; a toggle overrides it.
+  const soundPref = useSyncExternalStore(noSubscribe, readSoundPref, () => true);
+  const soundOn = soundChoice ?? soundPref;
+  const phase = phaseFor(score);
 
   // Best score lives in localStorage; re-read on every render (e.g. after a game ends).
   const best = useSyncExternalStore(noSubscribe, readBest, () => 0);
@@ -129,6 +158,9 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
   }, [stalks]);
 
   const endGame = useCallback(() => {
+    audio.current?.over();
+    audio.current?.pause();
+    buzz(90);
     setStatus("over");
     setCritters([]);
     setFrozen(false);
@@ -141,12 +173,20 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
   }, []);
 
   const loseLife = useCallback(() => {
+    streakRef.current = 0;
+    setStreak(0);
     livesRef.current -= 1;
     setLives(livesRef.current);
     if (livesRef.current <= 0) endGame();
   }, [endGame]);
 
   const start = () => {
+    audio.current ??= new ForestAudio();
+    audio.current.muted = !soundOn;
+    audio.current.start(); // inside the click: browsers only allow audio after a gesture
+    streakRef.current = 0;
+    setStreak(0);
+    setPhaseNote(null);
     scoreRef.current = 0;
     livesRef.current = LIVES;
     spawned.current = 0;
@@ -161,11 +201,44 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
   };
 
   const quit = () => {
+    audio.current?.pause();
     setStatus("idle");
     setCritters([]);
     setPops([]);
     setFrozen(false);
     setMenuOpen(false);
+  };
+
+  const toggleSound = () => {
+    const next = !soundOn;
+    setSoundChoice(next);
+    saveSoundPref(next);
+    audio.current?.setMuted(!next);
+  };
+
+  // The forest only plays while a game is on screen.
+  useEffect(() => {
+    const a = audio.current;
+    if (!a) return;
+    if (status === "playing" && onScreen) a.resume();
+    else if (status === "playing") a.pause();
+  }, [status, onScreen]);
+
+  useEffect(() => () => audio.current?.dispose(), []);
+
+  const share = async () => {
+    const url = window.location.origin + window.location.pathname;
+    const message = text.shareText(scoreRef.current, url);
+    trackEvent("game_share", { score: scoreRef.current });
+    try {
+      if (navigator.share) {
+        await navigator.share({ text: message });
+        return;
+      }
+    } catch {
+      return; // share sheet dismissed
+    }
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
   };
 
   // Freeze scroll: bring the game to the middle of the screen and lock the page.
@@ -212,12 +285,14 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
       const side: Side = stalk === 0 ? "r" : stalk === stalks.length - 1 ? "l" : Math.random() < 0.5 ? "l" : "r";
       const critter: Critter = {
         id: nextId.current++,
-        kind: pickKind(spawned.current++),
+        kind: pickKind(spawned.current++, s),
         stalk,
         side,
         y: 26 + Math.random() * 44,
         dur: Math.max(760, 1650 - s * 40),
       };
+      // Golden tigers don't wait around.
+      if (critter.kind === "golden") critter.dur = Math.round(critter.dur * 0.7);
       crittersRef.current = [...current, critter];
       setCritters(crittersRef.current);
       // The stalk sways just before the animal appears — a fair warning.
@@ -238,12 +313,34 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
   const tap = (c: Critter) => {
     if (status !== "playing" || settled.current.has(c.id)) return;
     settled.current.add(c.id);
-    if (c.kind === "tiger") {
-      scoreRef.current += 1;
+    audio.current?.tok();
+    if (isTiger(c.kind)) {
+      streakRef.current += 1;
+      setStreak(streakRef.current);
+      const mult = multiplierFor(streakRef.current);
+      const points = (c.kind === "golden" ? 5 : 1) * mult;
+      const before = phaseFor(scoreRef.current);
+      scoreRef.current += points;
       setScore(scoreRef.current);
-      pop(c, "+1", true);
+      if (c.kind === "golden") {
+        audio.current?.golden();
+        buzz([20, 40, 20]);
+        pop(c, mult > 1 ? `${text.golden} ×${mult}` : text.golden, true);
+      } else {
+        audio.current?.caught(streakRef.current);
+        buzz(12);
+        pop(c, `+${points}`, true);
+      }
+      // Dusk and night arrive as the score climbs.
+      const after = phaseFor(scoreRef.current);
+      if (after !== before) {
+        audio.current?.nightfall();
+        setPhaseNote({ id: nextId.current++, text: after === "night" ? text.night : text.dusk });
+      }
       setCritters((prev) => prev.map((x) => (x.id === c.id ? { ...x, outcome: "caught" } : x)));
     } else {
+      audio.current?.wrong();
+      buzz([40, 60, 40]);
       pop(c, c.kind === "deer" ? text.notDeer : text.notPeacock, false);
       setCritters((prev) => prev.map((x) => (x.id === c.id ? { ...x, outcome: "wrong" } : x)));
       loseLife();
@@ -253,8 +350,10 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
   const finished = (c: Critter) => {
     setCritters((prev) => prev.filter((x) => x.id !== c.id));
     // A tiger that got away costs a life.
-    if (!settled.current.has(c.id) && c.kind === "tiger" && status === "playing") {
+    if (!settled.current.has(c.id) && isTiger(c.kind) && status === "playing") {
       settled.current.add(c.id);
+      audio.current?.missed();
+      buzz(30);
       pop(c, text.missed, false);
       loseLife();
     }
@@ -264,14 +363,18 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
     <section aria-labelledby="game-title" className="relative">
       <div
         ref={field}
+        data-phase={status === "playing" ? phase : "day"}
         className={cn(
-          "relative isolate h-[clamp(440px,72svh,660px)] touch-manipulation overflow-hidden select-none",
+          "tiger-field relative isolate h-[clamp(440px,72svh,660px)] touch-manipulation overflow-hidden select-none",
           (!onScreen || status !== "playing") && "game-paused",
         )}
         style={{ "--stalk": "clamp(20px, 2.6vw, 36px)", "--critter": "clamp(58px, 7.5vw, 92px)" } as CSSProperties}
       >
         {/* Warm grove light */}
         <div aria-hidden="true" className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_70%_60%_at_50%_55%,rgba(201,154,85,0.16),transparent_70%)]" />
+        {/* Dusk and night: a darkening sky and hanging lanterns (see .tiger-field in globals.css) */}
+        <div aria-hidden="true" className="game-sky pointer-events-none absolute inset-0 z-[5]" />
+        <Lanterns />
 
         {/* Wordmark behind the grove */}
         <p
@@ -356,7 +459,19 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
           </span>
         ))}
 
-        {/* Controls: ••• menu, Freeze scroll, and the score pill (TIGERS 04 | ●●●). */}
+        {/* "Dusk falls…" / "Night in the forest" */}
+        {phaseNote && (
+          <p
+            key={phaseNote.id}
+            aria-live="polite"
+            onAnimationEnd={() => setPhaseNote(null)}
+            className="phase-note font-hand pointer-events-none absolute inset-x-0 top-[38%] z-20 text-center text-[clamp(2rem,6vw,3.5rem)] text-bamboo-light"
+          >
+            {phaseNote.text}
+          </p>
+        )}
+
+        {/* Controls: ••• menu, sound, Freeze scroll, and the score pill (TIGERS 04 | ●●●). */}
         {status === "playing" && (
           <div className="absolute inset-x-0 bottom-0 z-20 flex flex-wrap items-center justify-end gap-2 p-3 sm:p-6">
             {menuOpen && (
@@ -380,6 +495,16 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
             </button>
             <button
               type="button"
+              onClick={toggleSound}
+              aria-pressed={soundOn}
+              aria-label={soundOn ? text.soundOn : text.soundOff}
+              title={soundOn ? text.soundOn : text.soundOff}
+              className="inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-cream/30 bg-smoke/70 text-cream backdrop-blur-sm transition hover:bg-cream/15 active:scale-95"
+            >
+              <Icon name={soundOn ? "sound" : "mute"} className="size-[1.1rem] shrink-0" />
+            </button>
+            <button
+              type="button"
               aria-pressed={frozen}
               onClick={() => setFrozen((v) => !v)}
               className={cn(hudButton, frozen && "border-bamboo bg-bamboo/15 text-bamboo-light shadow-[0_0_0_3px_rgba(201,154,85,0.25)]")}
@@ -387,6 +512,15 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
               {frozen ? text.unfreeze : text.freeze}
             </button>
             <p className="flex min-h-10 items-center gap-3 rounded-full border border-cream/25 bg-smoke/80 px-4 backdrop-blur-sm">
+              {multiplierFor(streak) > 1 && (
+                <span
+                  key={multiplierFor(streak)}
+                  title={text.streak(streak)}
+                  className="combo-chip rounded-full bg-bamboo px-2 py-0.5 font-display text-sm leading-none text-smoke"
+                >
+                  ×{multiplierFor(streak)}
+                </span>
+              )}
               <span className="label text-cream">
                 {text.hud}{" "}
                 <span className="ml-1 inline-block align-middle font-display text-2xl leading-none tracking-normal text-bamboo tabular-nums">
@@ -426,7 +560,7 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
                     <Legend kind="peacock" caption={text.spare} />
                   </div>
                   <p className="mt-5 text-sm leading-relaxed text-mist">
-                    {text.rules}
+                    {text.rules} {text.rulesExtra}
                   </p>
                 </>
               ) : (
@@ -436,14 +570,33 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
                 </p>
               )}
 
+              {status === "over" && score > 0 && (
+                <button
+                  type="button"
+                  onClick={share}
+                  className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full bg-whatsapp px-6 text-sm font-semibold text-smoke transition hover:brightness-110 active:scale-[0.98]"
+                >
+                  <Icon name="whatsapp" className="size-5" />
+                  {text.share}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={start}
-                className="mt-7 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-bamboo px-6 text-sm font-semibold tracking-wide text-smoke transition hover:bg-bamboo-light active:scale-[0.98]"
+                className={cn(status === "over" && score > 0 ? "mt-3" : "mt-7", "inline-flex min-h-12 w-full items-center justify-center rounded-full bg-bamboo px-6 text-sm font-semibold tracking-wide text-smoke transition hover:bg-bamboo-light active:scale-[0.98]")}
               >
                 {status === "over" ? text.again : text.play}
               </button>
               {status === "idle" && best > 0 && <p className="label mt-4 text-mist">{text.best(best)}</p>}
+              <button
+                type="button"
+                onClick={toggleSound}
+                aria-pressed={soundOn}
+                className="label mt-4 inline-flex items-center gap-1.5 text-mist hover:text-bamboo-light"
+              >
+                <Icon name={soundOn ? "sound" : "mute"} className="size-4" />
+                {soundOn ? text.soundOn : text.soundOff}
+              </button>
             </div>
           </div>
         )}
@@ -474,5 +627,27 @@ function LeafSpray({ className, style }: { className?: string; style?: CSSProper
       <path d="M44 34 C 60 34, 84 42, 104 58 C 80 54, 60 46, 44 34 Z" fill="#5a7433" />
       <path d="M70 26 C 84 16, 100 10, 118 12 C 104 20, 88 26, 70 26 Z" fill="#83a04a" />
     </svg>
+  );
+}
+
+/** Lanterns that light up at night. */
+function Lanterns() {
+  const spots = [
+    { x: 14, drop: 18 },
+    { x: 43, drop: 10 },
+    { x: 72, drop: 22 },
+  ];
+  return (
+    <div aria-hidden="true" className="game-lanterns pointer-events-none absolute inset-0 z-[6]">
+      {spots.map((s) => (
+        <svg key={s.x} viewBox="0 0 40 120" className="absolute top-0 w-7 sm:w-9" style={{ left: `${s.x}%`, height: `${s.drop + 12}%` }} preserveAspectRatio="xMidYMax meet">
+          <line x1="20" y1="0" x2="20" y2="86" stroke="#6b4a22" strokeWidth="1.2" />
+          <circle cx="20" cy="100" r="22" fill="#ffb347" opacity="0.28" className="lantern-glow" />
+          <rect x="11" y="86" width="18" height="26" rx="7" fill="#f2a33a" />
+          <rect x="13" y="84" width="14" height="4" rx="1.5" fill="#6b4a22" />
+          <rect x="13" y="111" width="14" height="3" rx="1.5" fill="#6b4a22" />
+        </svg>
+      ))}
+    </div>
   );
 }
