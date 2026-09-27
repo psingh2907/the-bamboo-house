@@ -1,17 +1,29 @@
 import { business } from "@/data/business";
-import { directionsUrl, fullAddress, mapEmbedUrl, phoneDisplay, phoneHref, whatsappHref } from "@/lib/contact";
-import { hoursLabel } from "@/lib/hours";
+import type { Locale } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
+import { addressText, directionsUrl, mapEmbedUrl, phoneDisplay, phoneHref, whatsappHref } from "@/lib/contact";
+import { hoursText } from "@/lib/hours";
+import { Accent } from "./ui/Accent";
 import { Button } from "./ui/Button";
 import { OpenStatus } from "./ui/OpenStatus";
 import { SectionHeading } from "./ui/SectionHeading";
 
 /** The main conversion section (brief §18): Call · WhatsApp · Directions. */
-export function VisitSection({ eyebrow = "09 — Visit", headingLevel = "h2" }: { eyebrow?: string; headingLevel?: "h1" | "h2" }) {
+export function VisitSection({
+  eyebrow,
+  headingLevel = "h2",
+  locale = "en",
+}: {
+  eyebrow?: string;
+  headingLevel?: "h1" | "h2";
+  locale?: Locale;
+}) {
+  const text = t(locale).visit;
   const rows = [
-    { label: "Address", value: <address className="not-italic">{fullAddress}</address> },
-    { label: "Plus code", value: business.address.plusCode },
-    { label: "Hours", value: <>Every day, {hoursLabel}</> },
-    { label: "Phone", value: phoneDisplay },
+    { label: text.address, value: <address className="not-italic">{addressText(locale)}</address> },
+    { label: text.plusCode, value: business.address.plusCode },
+    { label: text.hours, value: t(locale).hours.everyDay(hoursText(locale)) },
+    { label: text.phone, value: phoneDisplay },
   ];
 
   return (
@@ -20,16 +32,16 @@ export function VisitSection({ eyebrow = "09 — Visit", headingLevel = "h2" }: 
         <div>
           <SectionHeading
             as={headingLevel}
-            eyebrow={eyebrow}
+            eyebrow={eyebrow ?? text.eyebrow}
             title={
               <span id="visit-title">
-                Come <em className="text-clay-deep">find us</em>.
+                <Accent parts={text.title} className="text-clay-deep" />
               </span>
             }
           />
 
           <div data-reveal className="mt-8 inline-flex rounded-full bg-cream px-4 py-2 text-sm font-medium text-ink shadow-sm ring-1 ring-ink/10">
-            <OpenStatus />
+            <OpenStatus locale={locale} />
           </div>
 
           <dl data-reveal-stagger className="mt-10 divide-y divide-ink/10 border-y border-ink/10">
@@ -43,26 +55,26 @@ export function VisitSection({ eyebrow = "09 — Visit", headingLevel = "h2" }: 
 
           <div data-reveal className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button href={directionsUrl} external tone="light" icon="pin" track={{ event: "directions_click", params: { location: "visit" } }}>
-              Get directions
+              {text.directions}
             </Button>
             <Button href={phoneHref} variant="outline" tone="light" icon="phone" track={{ event: "call_click", params: { location: "visit" } }}>
-              Call now
+              {text.call}
             </Button>
             <Button
-              href={whatsappHref(`Hello ${business.name}, I'd like to ask about a visit.`)}
+              href={whatsappHref(text.message)}
               external
               variant="whatsapp"
               icon="whatsapp"
               track={{ event: "whatsapp_click", params: { location: "visit" } }}
             >
-              WhatsApp
+              {text.whatsapp}
             </Button>
           </div>
         </div>
 
         <div data-reveal="clip" className="relative min-h-[420px] overflow-hidden rounded-[2rem] bg-cream ring-1 ring-ink/10 lg:min-h-full">
           <iframe
-            title={`Map showing ${business.name}, ${business.address.area}`}
+            title={text.map}
             src={mapEmbedUrl}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"

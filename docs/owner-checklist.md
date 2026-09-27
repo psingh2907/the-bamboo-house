@@ -33,7 +33,17 @@ UNCONFIRMED / DEMO.
 | — | Real drive times to Panna Tiger Reserve, Khajuraho, etc. | `src/data/attractions.ts` (only once verified) |
 | — | 3–6 Google reviews the owner is happy to feature (copied word for word) | `src/data/reviews.ts` |
 
-## 3. Photography — the critical path
+## 3. Hindi version (/hi)
+
+- [ ] **Read every Hindi page** (/hi, /hi/menu, /hi/contact) — the Hindi is a
+      draft written for the site, not machine-translated, but it needs a native
+      speaker's eye. A little Bundeli warmth is welcome. Text lives in
+      `src/i18n/dictionaries.ts` and the `…Hi` fields in `src/data/`.
+- [ ] Confirm the Hindi spelling of **Syamardanda** (the site uses
+      "श्यामरदंडा") — `business.addressHi` in `src/data/business.ts`.
+- [ ] Confirm the Hindi dish names once the real menu arrives.
+
+## 4. Photography — the critical path
 
 The design is built around photography; every image slot currently shows an
 illustration labelled "photo to come". One evening shoot (golden hour → lights
@@ -55,7 +65,7 @@ the bamboo wall · chef plating · a family mid-meal · a birthday.
 Each slot's exact brief is in the `shot` field in `src/data/*.ts` (hover the
 "photo to come" label on the preview to see it).
 
-## 4. Launch
+## 5. Launch
 
 1. Set `NEXT_PUBLIC_PROTOTYPE_MODE=false`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GA_ID`.
 2. Deploy, connect domain.

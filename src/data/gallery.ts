@@ -15,11 +15,11 @@ export interface GalleryItem extends Visual {
  * finished image into /public/images/gallery and set `photo`.
  */
 export const gallery: GalleryItem[] = [
-  { id: "interior-wide", category: "The Space", wide: true, art: { kind: "slats", seed: 11 }, alt: "The bamboo-walled dining room", shot: "Wide interior from the entrance, evening" },
-  { id: "thali", category: "Food", art: { kind: "plate", hue: 38, seed: 21, thali: true }, alt: "A full thali from above", shot: "Top-down thali on dark wood" },
-  { id: "pots", category: "The Space", art: { kind: "pots", seed: 12 }, alt: "Clay pots hanging from the ceiling", shot: "Detail: the hanging clay pots against bamboo" },
-  { id: "paneer", category: "Food", art: { kind: "plate", hue: 18, seed: 22 }, alt: "Paneer butter masala", shot: "Paneer butter masala, three-quarter angle" },
-  { id: "evening", category: "Moments", wide: true, art: { kind: "lamp", seed: 13 }, alt: "Warm lights at dusk", shot: "Exterior at dusk with lights on" },
+  { id: "interior-wide", category: "The Space", wide: true, art: { kind: "slats", seed: 11 }, alt: "The bamboo-walled dining room", altHi: "बाँस की दीवारों वाला डाइनिंग हॉल", shot: "Wide interior from the entrance, evening" },
+  { id: "thali", category: "Food", art: { kind: "plate", hue: 38, seed: 21, thali: true }, alt: "A full thali from above", altHi: "ऊपर से दिखती पूरी थाली", shot: "Top-down thali on dark wood" },
+  { id: "pots", category: "The Space", art: { kind: "pots", seed: 12 }, alt: "Clay pots hanging from the ceiling", altHi: "छत से लटकते मिट्टी के मटके", shot: "Detail: the hanging clay pots against bamboo" },
+  { id: "paneer", category: "Food", art: { kind: "plate", hue: 18, seed: 22 }, alt: "Paneer butter masala", altHi: "पनीर बटर मसाला", shot: "Paneer butter masala, three-quarter angle" },
+  { id: "evening", category: "Moments", wide: true, art: { kind: "lamp", seed: 13 }, alt: "Warm lights at dusk", altHi: "शाम की गरम रोशनी", shot: "Exterior at dusk with lights on" },
   { id: "team", category: "People", art: { kind: "pots", seed: 14 }, alt: "The kitchen team", shot: "Team portrait in front of the bamboo wall" },
   { id: "biryani", category: "Food", art: { kind: "plate", hue: 42, seed: 23 }, alt: "Vegetable biryani", shot: "Biryani with steam" },
   { id: "tables", category: "The Space", art: { kind: "slats", seed: 15 }, alt: "Wooden tables and bamboo chairs", shot: "Detail: bamboo chair and dark-wood table grain" },

@@ -8,6 +8,9 @@ import { chapters } from "@/data/experience";
 import { cn } from "@/lib/cn";
 import { Media } from "../ui/Media";
 import { SectionHeading } from "../ui/SectionHeading";
+import { type Locale, pick } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
+import { Accent } from "../ui/Accent";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,7 +19,8 @@ gsap.registerPlugin(ScrollTrigger);
  * Desktop: the picture stays put (CSS sticky) and crossfades as each chapter
  * passes the middle of the screen. Phones: each chapter carries its own picture.
  */
-export function ExperienceStory() {
+export function ExperienceStory({ locale = "en" }: { locale?: Locale }) {
+  const text = t(locale).experience;
   const root = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
 
@@ -39,10 +43,10 @@ export function ExperienceStory() {
     <section ref={root} id="experience" aria-labelledby="experience-title" className="scroll-mt-20 bg-cream py-24 sm:py-32">
       <div className="container-x">
         <SectionHeading
-          eyebrow="04 — The experience"
+          eyebrow={text.eyebrow}
           title={
             <span id="experience-title">
-              Come for the food. <em className="text-clay-deep">Stay</em> for the place.
+              <Accent parts={text.title} className="text-clay-deep" />
             </span>
           }
         />
@@ -60,7 +64,7 @@ export function ExperienceStory() {
                     i === active ? "scale-100 opacity-100" : "scale-[1.06] opacity-0",
                   )}
                 >
-                  <Media visual={chapter.visual} sizes="45vw" />
+                  <Media visual={chapter.visual} locale={locale} sizes="45vw" />
                 </div>
               ))}
               <p className="label absolute top-5 right-5 rounded-full bg-smoke/70 px-3 py-1.5 text-bamboo-light backdrop-blur-sm">
@@ -77,7 +81,7 @@ export function ExperienceStory() {
                 className="flex flex-col justify-center border-t border-ink/10 py-12 first:border-t-0 lg:min-h-[75svh] lg:py-0"
               >
                 <div className="relative mb-8 aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-smoke lg:hidden">
-                  <Media visual={chapter.visual} sizes="100vw" />
+                  <Media visual={chapter.visual} locale={locale} sizes="100vw" />
                 </div>
                 <p
                   className={cn(
@@ -88,8 +92,8 @@ export function ExperienceStory() {
                 >
                   {chapter.number}
                 </p>
-                <h3 className="mt-4 font-display text-4xl tracking-[-0.02em] sm:text-5xl">{chapter.title}</h3>
-                <p className="mt-4 max-w-md text-lg leading-relaxed text-muted">{chapter.body}</p>
+                <h3 className="mt-4 font-display text-4xl tracking-[-0.02em] sm:text-5xl">{pick(locale, chapter.title, chapter.titleHi)}</h3>
+                <p className="mt-4 max-w-md text-lg leading-relaxed text-muted">{pick(locale, chapter.body, chapter.bodyHi)}</p>
               </li>
             ))}
           </ol>

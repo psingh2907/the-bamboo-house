@@ -46,6 +46,11 @@ const nextConfig: NextConfig = {
   images: {
     deviceSizes: [640, 750, 828, 1080, 1280, 1600, 2048],
   },
+  // English and Hindi have separate root layouts, so unmatched URLs need a
+  // global 404 (src/app/global-not-found.tsx).
+  experimental: {
+    globalNotFound: true,
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

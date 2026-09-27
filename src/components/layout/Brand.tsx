@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { type Locale, localePath } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
 import { cn } from "@/lib/cn";
 
 /** Bamboo mark: three culms with nodes. Temporary until the owner's logo arrives. */
@@ -19,9 +21,9 @@ export function BambooMark({ className }: { className?: string }) {
   );
 }
 
-export function Brand({ className, onClick }: { className?: string; onClick?: () => void }) {
+export function Brand({ className, onClick, locale = "en" }: { className?: string; onClick?: () => void; locale?: Locale }) {
   return (
-    <Link href="/" onClick={onClick} className={cn("group inline-flex items-center gap-2.5", className)} aria-label="The Bamboo House — home">
+    <Link href={localePath(locale, "/")} onClick={onClick} className={cn("group inline-flex items-center gap-2.5", className)} aria-label={t(locale).brand.home}>
       <BambooMark className="size-7 text-bamboo transition-transform duration-500 group-hover:-rotate-6" />
       <span className="font-display text-[1.2rem] leading-none font-medium tracking-[-0.01em]">
         The Bamboo House

@@ -1,19 +1,15 @@
 import { business } from "@/data/business";
+import { formatTime, type Locale } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
 
 const toMinutes = (hhmm: string) => {
   const [h, m] = hhmm.split(":").map(Number);
   return h * 60 + m;
 };
 
-/** "21:30" → "9:30 pm", "11:00" → "11 am". */
-export function formatTime(hhmm: string): string {
-  const [h, m] = hhmm.split(":").map(Number);
-  const suffix = h >= 12 ? "pm" : "am";
-  const hour = h % 12 || 12;
-  return m ? `${hour}:${String(m).padStart(2, "0")} ${suffix}` : `${hour} ${suffix}`;
-}
-
-export const hoursLabel = `${formatTime(business.hours.opens)} – ${formatTime(business.hours.closes)}`;
+/** "11 am – 9:30 pm" / "सुबह 11 बजे – रात 9:30 बजे". */
+export const hoursText = (locale: Locale = "en") =>
+  `${formatTime(locale, business.hours.opens)} – ${formatTime(locale, business.hours.closes)}`;
 
 export interface OpenStatus {
   open: boolean;
@@ -21,7 +17,7 @@ export interface OpenStatus {
 }
 
 /** Open/closed right now, in India Standard Time regardless of the visitor's clock. */
-export function getOpenStatus(now: Date = new Date()): OpenStatus {
+export function getOpenStatus(locale: Locale = "en", now: Date = new Date()): OpenStatus {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Asia/Kolkata",
     weekday: "long",
@@ -35,10 +31,14 @@ export function getOpenStatus(now: Date = new Date()): OpenStatus {
 
   const opens = toMinutes(business.hours.opens);
   const closes = toMinutes(business.hours.closes);
+  const { hours } = t(locale);
 
   if (openToday && minutes >= opens && minutes < closes) {
-    return { open: true, label: `Open now · until ${formatTime(business.hours.closes)}` };
+    return { open: true, label: hours.openNow(formatTime(locale, business.hours.closes)) };
   }
-  const when = openToday && minutes < opens ? "today" : "tomorrow";
-  return { open: false, label: `Closed · opens ${when} ${formatTime(business.hours.opens)}` };
+  const openTime = formatTime(locale, business.hours.opens);
+  return {
+    open: false,
+    label: openToday && minutes < opens ? hours.closedToday(openTime) : hours.closedTomorrow(openTime),
+  };
 }

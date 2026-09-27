@@ -2,16 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { MenuCategory } from "@/data/types";
+import { type Locale, pick } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 import { scrollToElement } from "@/lib/motion";
 
 /** Indian food-labelling mark: green square/dot for veg, brown triangle for non-veg. */
-function DietMark({ veg }: { veg: boolean }) {
+function DietMark({ veg, locale }: { veg: boolean; locale: Locale }) {
+  const text = t(locale).menuPage;
   return (
     <span
       role="img"
-      aria-label={veg ? "Vegetarian" : "Non-vegetarian"}
+      aria-label={veg ? text.veg : text.nonVeg}
       className={cn(
         "inline-flex size-3.5 shrink-0 items-center justify-center rounded-[2px] border-[1.5px]",
         veg ? "border-[#2e8b3a]" : "border-[#8a3b12]",
@@ -26,7 +29,8 @@ function DietMark({ veg }: { veg: boolean }) {
   );
 }
 
-export function MenuBrowser({ menu }: { menu: MenuCategory[] }) {
+export function MenuBrowser({ menu, locale = "en" }: { menu: MenuCategory[]; locale?: Locale }) {
+  const text = t(locale).menuPage;
   const [active, setActive] = useState(menu[0]?.id);
   const tabsRef = useRef<HTMLDivElement>(null);
 
@@ -76,7 +80,7 @@ export function MenuBrowser({ menu }: { menu: MenuCategory[] }) {
                 active === category.id ? "bg-smoke text-cream" : "text-muted hover:bg-ink/5 hover:text-ink",
               )}
             >
-              {category.title}
+              {pick(locale, category.title, category.titleHi)}
             </a>
           ))}
         </div>
@@ -88,7 +92,7 @@ export function MenuBrowser({ menu }: { menu: MenuCategory[] }) {
             <div>
               <p className="label text-clay-deep">[ 0{ci + 1} ]</p>
               <h2 id={`${category.id}-title`} className="mt-3 font-display text-4xl tracking-[-0.02em] sm:text-5xl">
-                {category.title}
+                {pick(locale, category.title, category.titleHi)}
               </h2>
               {category.note && <p className="mt-3 text-muted">{category.note}</p>}
             </div>
@@ -96,15 +100,23 @@ export function MenuBrowser({ menu }: { menu: MenuCategory[] }) {
               {category.items.map((item) => (
                 <li key={item.name}>
                   <div className="flex items-baseline gap-3">
-                    <DietMark veg={item.veg} />
+                    <DietMark veg={item.veg} locale={locale} />
                     <h3 className="font-display text-xl leading-tight">
-                      {item.name}
-                      {item.signature && <span className="label ml-2 align-middle text-[0.58rem] text-clay-deep">Signature</span>}
+                      {pick(locale, item.name, item.nameHi)}
+                      {item.signature && <span className="label ml-2 align-middle text-[0.58rem] text-clay-deep">{text.signature}</span>}
                     </h3>
                     <span aria-hidden="true" className="mb-1 min-w-4 flex-1 border-b border-dotted border-ink/25" />
                     <span className="font-display text-lg text-clay-deep">₹{item.price}</span>
                   </div>
-                  {item.description && <p className="mt-1.5 pl-6 text-sm leading-relaxed text-muted">{item.description}</p>}
+                  {/* The name in the other language — Hindi under English, English under Hindi. */}
+                  {item.nameHi && (
+                    <p lang={locale === "hi" ? "en" : "hi"} className="font-hand mt-0.5 pl-6 text-base leading-snug text-clay-deep/80">
+                      {locale === "hi" ? item.name : item.nameHi}
+                    </p>
+                  )}
+                  {item.description && (
+                    <p className="mt-1.5 pl-6 text-sm leading-relaxed text-muted">{pick(locale, item.description, item.descriptionHi)}</p>
+                  )}
                 </li>
               ))}
             </ul>

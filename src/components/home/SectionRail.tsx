@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { scrollToElement } from "@/lib/motion";
+import type { Locale } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
 
 /**
  * Home-page progress rail (Oryzo's sticky section nav): shows which part of
@@ -10,15 +12,16 @@ import { scrollToElement } from "@/lib/motion";
  * hero has scrolled away and hides again over the footer.
  */
 const sections = [
-  { id: "place", label: "The place" },
-  { id: "food", label: "Food" },
-  { id: "experience", label: "Experience" },
-  { id: "panna", label: "Panna" },
-  { id: "your-table", label: "Your table" },
-  { id: "visit", label: "Visit" },
+  { id: "place", key: "place" },
+  { id: "food", key: "food" },
+  { id: "experience", key: "experience" },
+  { id: "panna", key: "panna" },
+  { id: "your-table", key: "table" },
+  { id: "visit", key: "visit" },
 ] as const;
 
-export function SectionRail() {
+export function SectionRail({ locale = "en" }: { locale?: Locale }) {
+  const text = t(locale).rail;
   const [active, setActive] = useState<string | null>(null);
   const [shown, setShown] = useState(false);
 
@@ -53,7 +56,7 @@ export function SectionRail() {
 
   return (
     <nav
-      aria-label="On this page"
+      aria-label={text.label}
       className={cn(
         "fixed top-1/2 right-5 z-40 hidden -translate-y-1/2 transition-[opacity,transform] duration-500 lg:block",
         shown ? "opacity-100" : "pointer-events-none translate-x-4 opacity-0",
@@ -90,7 +93,7 @@ export function SectionRail() {
                     isActive ? "text-bamboo-light opacity-100" : "text-mist opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100",
                   )}
                 >
-                  {s.label}
+                  {text[s.key]}
                 </span>
                 <span
                   aria-hidden="true"

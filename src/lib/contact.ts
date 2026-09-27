@@ -1,4 +1,5 @@
 import { business } from "@/data/business";
+import type { Locale } from "@/i18n";
 import { isConfigured } from "@/lib/placeholders";
 
 const digits = (value: string) => value.replace(/\D/g, "");
@@ -25,12 +26,15 @@ export const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination
 /** Keyless embed centred on the pin. */
 export const mapEmbedUrl = `https://www.google.com/maps?q=${coords}&z=15&output=embed`;
 
-export const fullAddress = [
-  business.address.area,
-  business.address.locality,
-  `${business.address.district} district`,
-  `${business.address.state} ${business.address.postalCode}`,
-].join(", ");
+/** Full postal address in the page's language. */
+export function addressText(locale: Locale = "en"): string {
+  const a = business.address;
+  if (locale === "hi") {
+    const h = business.addressHi;
+    return `${h.area}, ${h.locality}, ${h.district} ज़िला, ${h.state} ${a.postalCode}`;
+  }
+  return `${a.area}, ${a.locality}, ${a.district} district, ${a.state} ${a.postalCode}`;
+}
 
 export const socialLinks = (
   [

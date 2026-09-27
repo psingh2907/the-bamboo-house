@@ -13,8 +13,13 @@
 export const business = {
   name: "The Bamboo House",
 
+  // Hindi name. Google Maps currently shows "थे बम्बू हाउस" (a wrong
+  // transliteration) — fix the listing to match this once it is claimed.
+  nameHi: "द बैम्बू हाउस",
+
   // VERIFIED — Google Maps category.
   category: "Family restaurant",
+  categoryHi: "फ़ैमिली रेस्टोरेंट",
 
   // DEMO — suggested line, not an existing slogan.
   tagline: "Come hungry. Leave with a memory.",
@@ -23,6 +28,14 @@ export const business = {
   // listing photo; everything else here needs the owner's words.
   description:
     "A family restaurant wrapped in bamboo, in Syamardanda near Devendranagar, Panna. Good food, warm light and room for everyone at the table.",
+
+  // UNCONFIRMED — Hindi spelling of Syamardanda to be confirmed by the owner.
+  addressHi: {
+    area: "श्यामरदंडा",
+    locality: "देवेंद्रनगर",
+    district: "पन्ना",
+    state: "मध्य प्रदेश",
+  },
 
   address: {
     area: "Syamardanda", // VERIFIED — Google Maps

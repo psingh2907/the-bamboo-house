@@ -1,17 +1,20 @@
 import { business } from "@/data/business";
-import { formatTime } from "@/lib/hours";
+import { formatTime, type Locale } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
 
 /** Oryzo-style "spec sheet" — but only with numbers that are true. */
-const numbers = [
-  { value: String(business.rating.value), unit: "/ 5", label: "Google rating" },
-  { value: String(business.rating.count), unit: "+", label: "Guest reviews" },
-  { value: String(business.hours.days.length), unit: "days", label: "Open every week" },
-  { value: formatTime(business.hours.closes).replace(/\s?pm/, ""), unit: "pm", label: "Open until" },
-];
-
-export function Numbers() {
+export function Numbers({ locale = "en" }: { locale?: Locale }) {
+  const text = t(locale).numbers;
+  // "9:30" from the closing time (the unit — pm / बजे — is shown separately).
+  const closing = formatTime("en", business.hours.closes).replace(/\s?[ap]m/, "");
+  const numbers = [
+    { value: String(business.rating.value), unit: "/ 5", label: text.rating },
+    { value: String(business.rating.count), unit: "+", label: text.reviews },
+    { value: String(business.hours.days.length), unit: text.daysUnit, label: text.days },
+    { value: closing, unit: text.untilUnit, label: text.until },
+  ];
   return (
-    <section aria-label="The Bamboo House in numbers" className="bg-paper pb-24 sm:pb-32">
+    <section aria-label={text.label} className="bg-paper pb-24 sm:pb-32">
       <div className="container-x">
         <dl data-reveal-stagger className="grid grid-cols-2 border-t border-ink/15 lg:grid-cols-4">
           {numbers.map((n) => (

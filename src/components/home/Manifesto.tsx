@@ -3,15 +3,15 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
+import type { Locale } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
 
-// DEMO copy — the brand idea from the brief ("More than a meal"). Rewrite
-// with the owner's own story once we have it.
-const lead = "More than a meal.";
-const body =
-  "Bamboo walls that glow at dusk. A thali that arrives still steaming. A table long enough for the whole family — and a reason to stop on your way through Panna.";
+// DEMO copy (src/i18n/dictionaries.ts) — the brand idea from the brief
+// ("More than a meal"). Rewrite with the owner's own story once we have it.
 
 /** Words light up one by one as the paragraph scrolls through the viewport. */
-export function Manifesto() {
+export function Manifesto({ locale = "en" }: { locale?: Locale }) {
+  const { lead, body, label, eyebrow } = t(locale).manifesto;
   const root = useRef<HTMLElement>(null);
 
   useGSAP(
@@ -38,9 +38,9 @@ export function Manifesto() {
   );
 
   return (
-    <section ref={root} id="idea" aria-label="Our idea" className="lamp scroll-mt-20 bg-smoke py-28 text-cream sm:py-40">
+    <section ref={root} id="idea" aria-label={label} className="lamp scroll-mt-20 bg-smoke py-28 text-cream sm:py-40">
       <div className="container-x">
-        <p className="label text-bamboo">[ 01 — The idea ]</p>
+        <p className="label text-bamboo">[ {eyebrow} ]</p>
         <p data-words className="mt-8 max-w-6xl font-display text-[clamp(2rem,4.6vw,4.25rem)] leading-[1.08] tracking-[-0.02em]">
           <span className="text-bamboo italic">{lead}</span>{" "}
           {body.split(" ").map((word, i) => (

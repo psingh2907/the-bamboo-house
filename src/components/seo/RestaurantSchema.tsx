@@ -1,5 +1,6 @@
 import { siteConfig } from "@/config/site";
 import { business } from "@/data/business";
+import { htmlLang, type Locale, localePath } from "@/i18n";
 import { placeUrl, socialLinks } from "@/lib/contact";
 import { JsonLd } from "./JsonLd";
 
@@ -11,7 +12,7 @@ import { JsonLd } from "./JsonLd";
  *    its own reviews (self-serving), so the rating is shown but not marked up.
  *  - servesCuisine and menu items: add once the owner confirms the real menu.
  */
-export function RestaurantSchema() {
+export function RestaurantSchema({ locale = "en" }: { locale?: Locale }) {
   const { address, contact, hours, priceRange } = business;
   const url = siteConfig.url;
 
@@ -20,6 +21,7 @@ export function RestaurantSchema() {
     "@type": "Restaurant",
     "@id": `${url}/#restaurant`,
     name: business.name,
+    alternateName: business.nameHi,
     description: business.description,
     url,
     telephone: contact.phone.replace(/\s/g, ""),
@@ -39,7 +41,7 @@ export function RestaurantSchema() {
     ],
   };
   // The sample menu is not real data, so it is only referenced in production.
-  if (!siteConfig.prototypeMode) restaurant.hasMenu = `${url}/menu`;
+  if (!siteConfig.prototypeMode) restaurant.hasMenu = `${url}${localePath(locale, "/menu")}`;
   const sameAs = [placeUrl, ...socialLinks.map((s) => s.href)];
   restaurant.sameAs = sameAs;
 
@@ -48,8 +50,9 @@ export function RestaurantSchema() {
     "@type": "WebSite",
     "@id": `${url}/#website`,
     name: business.name,
+    alternateName: business.nameHi,
     url,
-    inLanguage: "en-IN",
+    inLanguage: [htmlLang.en, htmlLang.hi],
     publisher: { "@id": `${url}/#restaurant` },
   };
 

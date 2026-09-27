@@ -6,6 +6,8 @@ import Image from "next/image";
 import { useRef } from "react";
 import { business } from "@/data/business";
 import { menu } from "@/data/menu";
+import { type Locale, localePath, pick } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
 import { directionsUrl } from "@/lib/contact";
 import { Artwork } from "../ui/Artwork";
 import { Button } from "../ui/Button";
@@ -52,7 +54,9 @@ function Guides() {
   );
 }
 
-export function Hero() {
+export function Hero({ locale = "en" }: { locale?: Locale }) {
+  const text = t(locale).hero;
+  const thaliAlt = pick(locale, thali.alt, thali.altHi);
   const root = useRef<HTMLElement>(null);
 
   // As the hero scrolls away the plate turns and settles, and the copy lifts off.
@@ -92,7 +96,15 @@ export function Hero() {
 
       <div className="container-x relative flex flex-1 flex-col pt-32 pb-10 lg:pt-32 lg:pb-12">
         <p data-hero-copy className="label intro-line text-center text-bamboo" style={{ animationDelay: "0.1s" }}>
-          [ {business.category} · {business.address.area}, {business.address.district} ]
+          {locale === "hi" ? (
+            <>
+              [ {business.categoryHi} · {business.addressHi.area}, {business.addressHi.district} ]
+            </>
+          ) : (
+            <>
+              [ <span lang="hi">{business.nameHi}</span> · {business.category} · {business.address.area}, {business.address.district} ]
+            </>
+          )}
         </p>
 
         {/* Plate + headline. On large screens the headline sits either side of the plate. */}
@@ -103,10 +115,10 @@ export function Hero() {
             className="relative z-10 text-center font-display text-[clamp(2.9rem,11vw,4.5rem)] leading-[0.95] font-medium tracking-[-0.025em] lg:absolute lg:inset-x-0 lg:top-1/2 lg:flex lg:-translate-y-1/2 lg:justify-between lg:text-[clamp(3.5rem,5.6vw,6.2rem)]"
           >
             <span className="intro-line block lg:max-w-[26vw] lg:text-left" style={{ animationDelay: "0.25s" }}>
-              Come hungry.
+              {text.lead}
             </span>
             <span className="intro-line block text-bamboo italic lg:max-w-[26vw] lg:text-right" style={{ animationDelay: "0.4s" }}>
-              Leave with a memory.
+              {text.accent}
             </span>
           </h1>
 
@@ -119,9 +131,9 @@ export function Hero() {
               className="plate-in relative size-full overflow-hidden rounded-full shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8)]"
             >
               {thali.photo ? (
-                <Image src={thali.photo.src} alt={thali.alt} fill priority sizes="(min-width: 1024px) 36vw, 78vw" className="object-cover" />
+                <Image src={thali.photo.src} alt={thaliAlt} fill priority sizes="(min-width: 1024px) 36vw, 78vw" className="object-cover" />
               ) : (
-                <Artwork spec={thali.art} label={thali.alt} viewBox="18 68 364 364" className="size-full" />
+                <Artwork spec={thali.art} label={thaliAlt} viewBox="18 68 364 364" className="size-full" />
               )}
             </div>
           </div>
@@ -130,11 +142,11 @@ export function Hero() {
         <div data-hero-copy className="intro-line grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end" style={{ animationDelay: "0.7s" }}>
           <div className="mx-auto max-w-md text-center lg:mx-0 lg:text-left">
             <p className="text-base leading-relaxed text-mist">
-              A family restaurant wrapped in bamboo, in {business.address.area} near {business.address.locality}, Panna.
+              {text.sub}
             </p>
             <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-              <Button href="/menu" icon="book">
-                Explore the menu
+              <Button href={localePath(locale, "/menu")} icon="book">
+                {text.menu}
               </Button>
               <Button
                 href={directionsUrl}
@@ -143,29 +155,29 @@ export function Hero() {
                 icon="pin"
                 track={{ event: "directions_click", params: { location: "hero" } }}
               >
-                Find us
+                {text.find}
               </Button>
             </div>
           </div>
 
           <dl className="grid grid-cols-3 divide-x divide-smoke-line border-y border-smoke-line text-center lg:min-w-[30rem] lg:text-left">
             <div className="px-3 py-4 lg:px-5">
-              <dt className="label text-[0.6rem] text-mist">Google</dt>
+              <dt className="label text-[0.6rem] text-mist">{text.google}</dt>
               <dd className="mt-1 flex items-center justify-center gap-1.5 font-display text-xl sm:text-2xl lg:justify-start">
                 {business.rating.value}
                 <Icon name="star" className="size-4 fill-bamboo text-bamboo" />
               </dd>
             </div>
             <div className="px-3 py-4 lg:px-5">
-              <dt className="label text-[0.6rem] text-mist">Per person</dt>
+              <dt className="label text-[0.6rem] text-mist">{text.perPerson}</dt>
               <dd className="mt-1 font-display text-xl whitespace-nowrap sm:text-2xl">
                 ₹{business.priceRange.min}–{business.priceRange.max}
               </dd>
             </div>
             <div className="px-3 py-4 lg:px-5">
-              <dt className="label text-[0.6rem] text-mist">Today</dt>
+              <dt className="label text-[0.6rem] text-mist">{text.today}</dt>
               <dd className="mt-2 text-xs leading-snug text-cream/90">
-                <OpenStatus />
+                <OpenStatus locale={locale} />
               </dd>
             </div>
           </dl>
@@ -178,7 +190,7 @@ export function Hero() {
           className="intro-fade absolute bottom-7 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-mist transition-colors hover:text-bamboo-light 2xl:flex"
           style={{ animationDelay: "1.2s" }}
         >
-          <span className="label text-[0.6rem]">Scroll</span>
+          <span className="label text-[0.6rem]">{text.scroll}</span>
           <span aria-hidden="true" className="relative h-10 w-px overflow-hidden bg-smoke-line">
             <span className="scroll-cue absolute inset-x-0 top-0 h-1/2 bg-bamboo" />
           </span>

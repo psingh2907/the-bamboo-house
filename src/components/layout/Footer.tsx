@@ -1,38 +1,41 @@
 import Link from "next/link";
 import { business } from "@/data/business";
-import { navLinks } from "@/data/navigation";
-import { fullAddress, phoneDisplay, phoneHref, placeUrl, socialLinks } from "@/lib/contact";
-import { hoursLabel } from "@/lib/hours";
+import { navItems } from "@/data/navigation";
+import type { Locale } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
+import { addressText, phoneDisplay, phoneHref, placeUrl, socialLinks } from "@/lib/contact";
+import { hoursText } from "@/lib/hours";
 import { TigerGame } from "../game/TigerGame";
 import { TrackedLink } from "../ui/TrackedLink";
 import { Brand } from "./Brand";
 
-export function Footer() {
+export function Footer({ locale = "en" }: { locale?: Locale }) {
   const year = new Date().getFullYear();
+  const text = t(locale).footer;
   return (
     <footer className="bg-smoke text-mist">
-      <TigerGame />
+      <TigerGame locale={locale} />
 
       <div className="container-x pb-10">
         <div className="grid gap-10 border-t border-smoke-line pt-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-4 text-cream">
-            <Brand />
-            {/* Entity description: keeps name, place and category consistent for local SEO. */}
-            <p className="max-w-xs text-sm leading-relaxed text-mist">
-              {business.name} is a {business.category.toLowerCase()} in {business.address.area}, near{" "}
-              {business.address.locality}, {business.address.district} district, {business.address.state}.
+            <Brand locale={locale} />
+            {/* Both names, always: keeps the entity consistent for local search in either language. */}
+            <p lang="hi" className="font-hand text-xl text-bamboo-light">
+              {business.nameHi}
             </p>
+            <p className="max-w-xs text-sm leading-relaxed text-mist">{text.entity}</p>
           </div>
 
           <div className="space-y-3 text-sm">
-            <p className="label text-bamboo">[ Visit ]</p>
-            <address className="leading-relaxed not-italic">{fullAddress}</address>
-            <p>Plus code {business.address.plusCode}</p>
+            <p className="label text-bamboo">[ {text.visit} ]</p>
+            <address className="leading-relaxed not-italic">{addressText(locale)}</address>
+            <p>{text.plusCode(business.address.plusCode)}</p>
           </div>
 
           <div className="space-y-3 text-sm">
-            <p className="label text-bamboo">[ Hours & contact ]</p>
-            <p>Open daily, {hoursLabel}</p>
+            <p className="label text-bamboo">[ {text.contact} ]</p>
+            <p>{text.openDaily(hoursText(locale))}</p>
             <p>
               <TrackedLink href={phoneHref} track={{ event: "call_click", params: { location: "footer" } }} className="text-cream hover:text-bamboo-light">
                 {phoneDisplay}
@@ -45,7 +48,7 @@ export function Footer() {
                 track={{ event: "google_reviews_click", params: { location: "footer" } }}
                 className="hover:text-bamboo-light"
               >
-                Google reviews ↗
+                {text.reviews} ↗
               </TrackedLink>
             </p>
             {socialLinks.map((social) => (
@@ -57,13 +60,14 @@ export function Footer() {
             ))}
           </div>
 
-          <nav aria-label="Footer" className="space-y-3 text-sm">
-            <p className="label text-bamboo">[ Explore ]</p>
+          <nav aria-label={text.explore} className="space-y-3 text-sm">
+            <p className="label text-bamboo">[ {text.explore} ]</p>
             <ul className="space-y-2">
-              {navLinks.map((link) => (
+              {navItems(locale).map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="hover:text-bamboo-light">
                     {link.label}
+                    {link.englishOnly && <span className="ml-1.5 text-xs text-mist/70">(EN)</span>}
                   </Link>
                 </li>
               ))}
@@ -73,12 +77,12 @@ export function Footer() {
 
         <div className="mt-14 flex flex-col gap-3 border-t border-smoke-line pt-6 text-xs sm:flex-row sm:justify-between">
           <p>
-            © {year} {business.name}. All rights reserved. ·{" "}
+            © {year} {locale === "hi" ? business.nameHi : business.name}. {text.rights} ·{" "}
             <Link href="/privacy" className="hover:text-bamboo-light">
-              Privacy
+              {text.privacy}
             </Link>
           </p>
-          <p>Syamardanda · Devendranagar · Panna · Madhya Pradesh</p>
+          <p>{text.places}</p>
         </div>
       </div>
     </footer>

@@ -34,12 +34,17 @@ export interface Visual {
   photo?: Photo;
   art: ArtSpec;
   alt: string;
+  /** Hindi alt text for the /hi pages. */
+  altHi?: string;
   shot: string;
 }
 
 export interface MenuItem {
   name: string;
+  /** Hindi name — shown under the English name, and first on /hi. */
+  nameHi?: string;
   description?: string;
+  descriptionHi?: string;
   price: number;
   veg: boolean;
   /** Shown in "Signature dishes" on the home page. */
@@ -50,6 +55,7 @@ export interface MenuItem {
 export interface MenuCategory {
   id: string;
   title: string;
+  titleHi?: string;
   note?: string;
   items: MenuItem[];
 }

@@ -1,40 +1,38 @@
-import { business } from "@/data/business";
 import { chapters } from "@/data/experience";
-import { hoursLabel } from "@/lib/hours";
+import type { Locale } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
+import { hoursText } from "@/lib/hours";
+import { Accent } from "../ui/Accent";
 import { Button } from "../ui/Button";
 import { Media } from "../ui/Media";
 import { SectionHeading } from "../ui/SectionHeading";
 
 const space = chapters[0].visual;
 
-const facts = [
-  // VERIFIED from the listing photo.
-  { title: "Built from bamboo", body: "Bamboo-slat walls, bamboo chairs and frames, and clay pots hung overhead." },
-  // VERIFIED category.
-  { title: "Made for families", body: "Tables for two or for the whole family, and a menu everyone can agree on." },
-  // REPORTED hours.
-  { title: "Open every day", body: `${hoursLabel}, lunch through dinner.` },
-];
+// Facts (src/i18n/dictionaries.ts): bamboo interior and family category are
+// VERIFIED from the listing; hours are REPORTED.
 
-export function PlaceIntro() {
+export function PlaceIntro({ locale = "en" }: { locale?: Locale }) {
+  const text = t(locale).place;
+  const facts = text.facts.map((f) => ({ title: f.title, body: typeof f.body === "function" ? f.body(hoursText(locale)) : f.body }));
   return (
     <section id="place" aria-labelledby="place-title" className="scroll-mt-20 bg-paper py-24 sm:py-32">
       <div className="container-x grid items-center gap-14 lg:grid-cols-[1.05fr_1fr] lg:gap-20">
         <div data-reveal="clip" className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-smoke">
           <div data-parallax="0.12" className="absolute -inset-y-[8%] inset-x-0">
-            <Media visual={space} sizes="(min-width: 1024px) 50vw, 100vw" />
+            <Media visual={space} locale={locale} sizes="(min-width: 1024px) 50vw, 100vw" />
           </div>
         </div>
 
         <div>
           <SectionHeading
-            eyebrow="02 — The place"
+            eyebrow={text.eyebrow}
             title={
               <span id="place-title">
-                A place worth <em className="text-clay-deep">stopping</em> for.
+                <Accent parts={text.title} className="text-clay-deep" />
               </span>
             }
-            intro={`${business.name} is a family restaurant in ${business.address.area}, near ${business.address.locality} in Panna district — the kind of place you remember the drive home from.`}
+            intro={text.intro}
           />
 
           <ol data-reveal-stagger className="mt-12 divide-y divide-ink/10 border-y border-ink/10">
@@ -51,7 +49,7 @@ export function PlaceIntro() {
 
           <div className="mt-10">
             <Button href="/about" variant="ghost" tone="light">
-              Our story
+              {text.story}
             </Button>
           </div>
         </div>

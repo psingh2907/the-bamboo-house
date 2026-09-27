@@ -11,23 +11,25 @@ import { SocialProof } from "@/components/home/SocialProof";
 import { TableSetter } from "@/components/home/TableSetter";
 import { ThaliJourney } from "@/components/home/ThaliJourney";
 import { VisitSection } from "@/components/VisitSection";
+import type { Locale } from "@/i18n";
 
-export default function HomePage() {
+/** The home page, in either language (/ and /hi). */
+export function HomePage({ locale }: { locale: Locale }) {
   return (
     <>
-      <Hero />
-      <Manifesto />
-      <PlaceIntro />
-      <Numbers />
-      <SignatureDishes />
-      <ExperienceStory />
-      <SocialProof />
-      <PannaConnection />
-      <GalleryTeaser />
-      <TableSetter />
-      <VisitSection />
+      <Hero locale={locale} />
+      <Manifesto locale={locale} />
+      <PlaceIntro locale={locale} />
+      <Numbers locale={locale} />
+      <SignatureDishes locale={locale} />
+      <ExperienceStory locale={locale} />
+      <SocialProof locale={locale} />
+      <PannaConnection locale={locale} />
+      <GalleryTeaser locale={locale} />
+      <TableSetter locale={locale} />
+      <VisitSection locale={locale} />
       <ThaliJourney />
-      <SectionRail />
+      <SectionRail locale={locale} />
     </>
   );
 }

@@ -51,8 +51,11 @@
 }
 
 @theme inline {
-  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  /* Hindi headlines fall through to Tiro Devanagari (loaded on /hi only). */
+  --font-display: var(--font-fraunces), var(--font-tiro, Georgia), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-mukta), ui-sans-serif, system-ui, sans-serif;
+  /* The handwritten voice: menu links, accents, Hindi dish names. */
+  --font-hand: var(--font-kalam), "Segoe Print", cursive;
 }
 
 @layer base {
@@ -86,21 +89,18 @@
     text-wrap: balance;
   }
 
-  /* Accent italics in display type use the separately loaded italic face. */
+  /* Accent words in display type are handwritten (Kalam), not italic. */
   .font-display :is(em, .italic),
   .font-display.italic {
-    font-family: var(--font-fraunces-italic), var(--font-fraunces), Georgia, serif;
-    font-style: italic;
+    font-family: var(--font-hand);
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: 0;
   }
 
   p {
     text-wrap: pretty;
   }
-}
-
-/* Space for the fixed mobile action bar. */
-@utility pb-action-bar {
-  padding-bottom: calc(4.25rem + env(safe-area-inset-bottom));
 }
 
 /* Bracketed technical label, e.g. [ 4.7 / 5 ]. */
@@ -415,4 +415,57 @@ html.is-loading :is(.intro-line, .intro-fade, .plate-in, .draw) {
   to {
     transform: translateY(200%);
   }
+}
+
+/* ─── Hindi typography ────────────────────────────────────────────────────
+   Unlayered, so these win over Tailwind utilities. Devanagari needs room
+   above and below for its vowel signs, and letter-spacing breaks the
+   shirorekha (the line joining letters), so tracking is reset. */
+:lang(hi) {
+  letter-spacing: 0 !important;
+}
+
+:lang(hi) :is(h1, h2, h3, .font-display) {
+  line-height: 1.3;
+}
+
+:lang(hi) .label {
+  text-transform: none;
+  font-size: 0.8rem;
+}
+
+/* Hindi "semibold" renders from the regular Devanagari file (500 → 400 in
+   font matching), saving a 66 KB semibold Devanagari download per page. */
+html:lang(hi) :is(.label, .font-semibold, strong, b) {
+  font-weight: 500;
+}
+
+/* ─── Explore menu (see ExploreMenu.tsx) ─────────────────────────────────
+   Grows out of the Explore button as a circle. */
+.explore-menu {
+  clip-path: circle(0px at var(--ox, 90%) var(--oy, 2rem));
+  transition: clip-path 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.explore-menu[data-open] {
+  clip-path: circle(150vmax at var(--ox, 90%) var(--oy, 2rem));
+}
+
+.explore-menu::backdrop {
+  background: transparent;
+}
+
+.explore-menu:not([data-open]) .explore-link {
+  opacity: 0;
+}
+
+.explore-menu[data-open] .explore-link {
+  animation: rise 0.7s var(--ease-expo) backwards;
+}
+
+/* On English pages, the few Hindi words (the restaurant's Hindi name, Hindi
+   dish names) use the phone's built-in Devanagari font instead of downloading
+   ~190 KB of web fonts for a handful of words. Hindi pages get the full set. */
+html:lang(en) :lang(hi) {
+  font-family: "Kohinoor Devanagari", "Noto Sans Devanagari", "Nirmala UI", "Mangal", sans-serif;
 }

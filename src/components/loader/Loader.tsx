@@ -3,6 +3,8 @@
 import gsap from "gsap";
 import { useEffect, useRef } from "react";
 import { business } from "@/data/business";
+import type { Locale } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
 import { INTRO_DONE_EVENT, INTRO_STORAGE_KEY } from "@/lib/intro";
 
 const SEGMENTS = 10;
@@ -10,11 +12,8 @@ const MIN_MS = 1000; // long enough to read as intentional
 const MAX_MS = 2600; // never hold a slow connection hostage
 const BLINDS = 5;
 
-const labels: [number, string][] = [
-  [0, "Lighting the lamps"],
-  [0.4, "Warming the tandoor"],
-  [0.75, "Setting your table"],
-];
+// Progress at which each loader line appears.
+const LABEL_AT = [0, 0.4, 0.75];
 
 /**
  * First-visit loader: a bamboo stalk grows one segment per 10% while the
@@ -27,7 +26,8 @@ const labels: [number, string][] = [
  * pushing LCP to the end of the intro. Canvas is not an LCP candidate, so LCP
  * is the hero headline that is already painted underneath.
  */
-export function Loader() {
+export function Loader({ locale = "en" }: { locale?: Locale }) {
+  const text = t(locale).loader;
   const root = useRef<HTMLDivElement>(null);
   const counter = useRef<HTMLCanvasElement>(null);
   const label = useRef<HTMLSpanElement>(null);
@@ -78,8 +78,8 @@ export function Loader() {
     const render = (p: number) => {
       segments.forEach((seg, i) => (seg.style.transform = `scaleY(${gsap.utils.clamp(0, 1, p * SEGMENTS - i)})`));
       drawCounter(String(Math.round(p * 100)).padStart(3, "0"));
-      const text = labels.filter(([at]) => p >= at).at(-1)?.[1];
-      if (label.current && text && label.current.textContent !== text) label.current.textContent = text;
+      const line = text.labels[LABEL_AT.filter((at) => p >= at).length - 1];
+      if (label.current && line && label.current.textContent !== line) label.current.textContent = line;
     };
 
     const reveal = () => {
@@ -134,7 +134,7 @@ export function Loader() {
       el.removeEventListener("pointerdown", requestSkip);
       window.removeEventListener("keydown", onKey);
     };
-  }, []);
+  }, [text]);
 
   return (
     <div ref={root} id="loader" aria-hidden="true" className="fixed inset-0 z-[100] overflow-hidden">
@@ -150,7 +150,7 @@ export function Loader() {
       </div>
 
       <div data-stage className="absolute inset-0 bg-[radial-gradient(ellipse_55%_60%_at_50%_45%,rgba(22,17,12,0.92),rgba(22,17,12,0.55))]">
-        <p className="label absolute top-5 right-5 text-bamboo/80 sm:top-8 sm:right-8">[ Tap to skip ]</p>
+        <p className="label absolute top-5 right-5 text-bamboo/80 sm:top-8 sm:right-8">[ {text.skip} ]</p>
         {/* The growing stalk */}
         <svg viewBox="0 0 80 460" className="absolute bottom-0 left-1/2 h-[80svh] -translate-x-1/2 overflow-visible">
           <defs>
@@ -188,7 +188,7 @@ export function Loader() {
         <div className="container-x absolute inset-x-0 bottom-0 flex items-end justify-between pb-8 text-cream sm:pb-12">
           <div>
             <span ref={label} className="label block text-bamboo">
-              Lighting the lamps
+              {text.labels[0]}
             </span>
             <span className="mt-2 flex items-start font-display leading-[0.8] tracking-[-0.05em]">
               <canvas ref={counter} className="block h-[clamp(4rem,14.4vw,8.8rem)] w-[clamp(8.4rem,30vw,18.5rem)]" />
@@ -196,9 +196,11 @@ export function Loader() {
             </span>
           </div>
           <p className="label hidden text-right text-mist sm:block">
-            {business.name}
+            {locale === "hi" ? business.nameHi : business.name}
             <br />
-            {business.address.area} · {business.address.district}
+            {locale === "hi"
+              ? `${business.addressHi.area} · ${business.addressHi.district}`
+              : `${business.address.area} · ${business.address.district}`}
           </p>
         </div>
       </div>

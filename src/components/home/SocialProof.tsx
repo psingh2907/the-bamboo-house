@@ -3,13 +3,17 @@ import { reviews } from "@/data/reviews";
 import { placeUrl } from "@/lib/contact";
 import { Button } from "../ui/Button";
 import { Icon } from "../ui/Icon";
+import type { Locale } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
+import { Accent } from "../ui/Accent";
 
 /**
  * The real Google reputation (brief §15). Review quotes appear only once the
  * owner approves them in src/data/reviews.ts — none are ever written by us.
  */
-export function SocialProof() {
-  const { value, count, source } = business.rating;
+export function SocialProof({ locale = "en" }: { locale?: Locale }) {
+  const { value, count } = business.rating;
+  const text = t(locale).reviews;
 
   return (
     <section aria-labelledby="reviews-title" className="lamp relative overflow-hidden bg-smoke-soft py-24 text-cream sm:py-32">
@@ -22,7 +26,7 @@ export function SocialProof() {
       </p>
 
       <div className="container-x relative">
-        <p className="label text-bamboo">[ 05 — Guests ]</p>
+        <p className="label text-bamboo">[ {text.eyebrow} ]</p>
         <div data-reveal className="mt-8 flex items-end gap-5">
           <span className="font-display text-[clamp(5rem,14vw,10rem)] leading-[0.8] tracking-[-0.05em]">{value}</span>
           <div className="pb-2">
@@ -41,13 +45,13 @@ export function SocialProof() {
               })}
             </div>
             <p className="label mt-3 text-mist">
-              [ {value} / 5 · {count} {source} reviews ]
+              [ {text.summary(value, count)} ]
             </p>
           </div>
         </div>
 
         <h2 id="reviews-title" data-reveal className="mt-10 max-w-3xl font-display text-[clamp(2.4rem,6vw,4.75rem)] leading-[0.98] tracking-[-0.02em]">
-          Loved by <em className="text-bamboo">our guests</em>.
+          <Accent parts={text.title} className="text-bamboo" />
         </h2>
 
         {reviews.length > 0 && (
@@ -64,7 +68,7 @@ export function SocialProof() {
 
         <div data-reveal className="mt-12 flex flex-col gap-3 sm:flex-row">
           <Button href={placeUrl} external icon="star" track={{ event: "google_reviews_click", params: { location: "reviews" } }}>
-            Read reviews on Google
+            {text.read}
           </Button>
           <Button
             href={placeUrl}
@@ -72,7 +76,7 @@ export function SocialProof() {
             variant="outline"
             track={{ event: "google_reviews_click", params: { location: "reviews_write" } }}
           >
-            Been here? Leave a review
+            {text.write}
           </Button>
         </div>
       </div>

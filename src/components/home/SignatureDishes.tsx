@@ -1,27 +1,31 @@
 import { signatureDishes } from "@/data/menu";
+import { type Locale, localePath, pick } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
+import { Accent } from "../ui/Accent";
 import { Button } from "../ui/Button";
 import { Media } from "../ui/Media";
 import { SectionHeading } from "../ui/SectionHeading";
 
 /** 4–6 visually strong dishes rather than the whole menu (brief §13). */
-export function SignatureDishes() {
+export function SignatureDishes({ locale = "en" }: { locale?: Locale }) {
+  const text = t(locale).dishes;
   return (
     <section id="food" aria-labelledby="dishes-title" className="lamp scroll-mt-20 overflow-hidden bg-smoke py-24 text-cream sm:py-32">
       <div className="container-x">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeading
             tone="dark"
-            eyebrow="03 — The food"
+            eyebrow={text.eyebrow}
             title={
               <span id="dishes-title">
-                From our <em className="text-bamboo">kitchen</em>.
+                <Accent parts={text.title} className="text-bamboo" />
               </span>
             }
-            intro="A few of the plates people come back for. The full menu has everything from starters to sweet lassi."
+            intro={text.intro}
           />
           <div data-reveal className="shrink-0">
-            <Button href="/menu" variant="outline" icon="book">
-              View full menu
+            <Button href={localePath(locale, "/menu")} variant="outline" icon="book">
+              {text.cta}
             </Button>
           </div>
         </div>
@@ -41,17 +45,25 @@ export function SignatureDishes() {
               className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-smoke-soft"
             >
               <div className="absolute inset-0 transition-transform duration-[1.2s] ease-[var(--ease-expo)] group-hover:scale-[1.05]">
-                {dish.visual && <Media visual={dish.visual} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 44vw, 78vw" />}
+                {dish.visual && <Media visual={dish.visual} locale={locale} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 44vw, 78vw" />}
               </div>
             </div>
             <div className="mt-5 flex items-start justify-between gap-4">
               <div>
-                <p className="label text-[0.62rem] text-mist">[ {dish.category} ]</p>
-                <h3 className="mt-2 font-display text-2xl">{dish.name}</h3>
+                <p className="label text-[0.62rem] text-mist">[ {pick(locale, dish.category, dish.categoryHi)} ]</p>
+                <h3 className="mt-2 font-display text-2xl">{pick(locale, dish.name, dish.nameHi)}</h3>
+                {/* The other language's name, small: Hindi under English and vice versa. */}
+                {dish.nameHi && (
+                  <p lang={locale === "hi" ? "en" : "hi"} className="font-hand mt-0.5 text-base text-bamboo-light/80">
+                    {locale === "hi" ? dish.name : dish.nameHi}
+                  </p>
+                )}
               </div>
               <p className="font-display text-xl text-bamboo">₹{dish.price}</p>
             </div>
-            {dish.description && <p className="mt-2 text-sm leading-relaxed text-mist">{dish.description}</p>}
+            {dish.description && (
+              <p className="mt-2 text-sm leading-relaxed text-mist">{pick(locale, dish.description, dish.descriptionHi)}</p>
+            )}
           </li>
         ))}
       </ul>

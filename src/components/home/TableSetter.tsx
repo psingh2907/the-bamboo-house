@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { business } from "@/data/business";
+import type { Locale } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 import { phoneDisplay, phoneHref, whatsappHref } from "@/lib/contact";
 import { Icon } from "../ui/Icon";
+import { Accent } from "../ui/Accent";
 import { SectionHeading } from "../ui/SectionHeading";
 
 /**
@@ -16,8 +18,6 @@ import { SectionHeading } from "../ui/SectionHeading";
  */
 
 const MAX = 20;
-const days = ["Today", "Tomorrow", "This weekend", "Another day"] as const;
-const meals = ["Lunch", "Dinner"] as const;
 
 // Table drawing, in viewBox units.
 const VB_W = 800;
@@ -44,14 +44,20 @@ function layout(guests: number) {
   return { length, tableH, x, y, plate, seats };
 }
 
-export function TableSetter() {
+const ANOTHER_DAY = 3;
+
+export function TableSetter({ locale = "en" }: { locale?: Locale }) {
+  const text = t(locale).table;
   const [guests, setGuests] = useState(4);
-  const [day, setDay] = useState<(typeof days)[number]>("Tomorrow");
-  const [meal, setMeal] = useState<(typeof meals)[number] | null>("Dinner");
+  const [day, setDay] = useState(1); // index into text.days: "Tomorrow"
+  const [meal, setMeal] = useState<number | null>(1); // "Dinner"
 
   const { length, tableH, x, y, plate, seats } = layout(guests);
-  const when = [day === "Another day" ? null : day.toLowerCase(), meal?.toLowerCase()].filter(Boolean).join(", ");
-  const message = `Hello ${business.name}! Could we have a table for ${guests}${when ? ` — ${when}` : ""}?`;
+  const lower = (s: string) => (locale === "en" ? s.toLowerCase() : s);
+  const when = [day === ANOTHER_DAY ? null : lower(text.days[day]), meal === null ? null : lower(text.meals[meal])]
+    .filter(Boolean)
+    .join(", ");
+  const message = text.message(guests, when);
   const set = (n: number) => setGuests(Math.min(MAX, Math.max(1, n)));
 
   const chip = (active: boolean) =>
@@ -65,13 +71,13 @@ export function TableSetter() {
       <div className="container-x grid items-center gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
         <div>
           <SectionHeading
-            eyebrow="08 — Your table"
+            eyebrow={text.eyebrow}
             title={
               <span id="table-title">
-                How many <em className="text-clay-deep">of you</em>?
+                <Accent parts={text.title} className="text-clay-deep" />
               </span>
             }
-            intro="Big family, birthday, or a car full of travellers — tell us how many and when, and we'll get back to you on WhatsApp."
+            intro={text.intro}
           />
 
           <div data-reveal className="mt-10">
@@ -79,7 +85,7 @@ export function TableSetter() {
               <output htmlFor="guests-range" className="font-display text-[clamp(4.5rem,10vw,7rem)] leading-[0.8] tracking-[-0.04em] tabular-nums">
                 {String(guests).padStart(2, "0")}
               </output>
-              <span className="pb-2 text-lg text-muted">{guests === 1 ? "guest" : "guests"}</span>
+              <span className="pb-2 text-lg text-muted">{guests === 1 ? text.guest : text.guests}</span>
             </div>
 
             <div className="mt-6 flex items-center gap-3">
@@ -90,10 +96,10 @@ export function TableSetter() {
                 className="inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-ink/20 text-xl disabled:opacity-30"
               >
                 <span aria-hidden="true">−</span>
-                <span className="sr-only">One fewer guest</span>
+                <span className="sr-only">{text.fewer}</span>
               </button>
               <label htmlFor="guests-range" className="sr-only">
-                Number of guests
+                {text.count}
               </label>
               <input
                 id="guests-range"
@@ -111,25 +117,25 @@ export function TableSetter() {
                 className="inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-ink/20 text-xl disabled:opacity-30"
               >
                 <span aria-hidden="true">+</span>
-                <span className="sr-only">One more guest</span>
+                <span className="sr-only">{text.more}</span>
               </button>
             </div>
 
             <fieldset className="mt-8">
-              <legend className="label text-muted">When</legend>
+              <legend className="label text-muted">{text.when}</legend>
               <div className="mt-3 flex flex-wrap gap-2">
-                {days.map((d) => (
-                  <button key={d} type="button" aria-pressed={day === d} onClick={() => setDay(d)} className={chip(day === d)}>
+                {text.days.map((d, i) => (
+                  <button key={d} type="button" aria-pressed={day === i} onClick={() => setDay(i)} className={chip(day === i)}>
                     {d}
                   </button>
                 ))}
               </div>
             </fieldset>
             <fieldset className="mt-5">
-              <legend className="label text-muted">Meal</legend>
+              <legend className="label text-muted">{text.meal}</legend>
               <div className="mt-3 flex flex-wrap gap-2">
-                {meals.map((m) => (
-                  <button key={m} type="button" aria-pressed={meal === m} onClick={() => setMeal(meal === m ? null : m)} className={chip(meal === m)}>
+                {text.meals.map((m, i) => (
+                  <button key={m} type="button" aria-pressed={meal === i} onClick={() => setMeal(meal === i ? null : i)} className={chip(meal === i)}>
                     {m}
                   </button>
                 ))}
@@ -144,12 +150,12 @@ export function TableSetter() {
               className="mt-9 inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-whatsapp px-7 text-sm font-semibold text-smoke transition hover:brightness-110 active:scale-[0.98]"
             >
               <Icon name="whatsapp" className="size-5" />
-              Ask for a table for {guests}
+              {text.ask(guests)}
             </a>
             <p className="mt-4 text-sm text-muted">
-              More than {MAX}?{" "}
+              {text.over(MAX)}{" "}
               <a href={phoneHref} className="text-clay-deep underline underline-offset-4">
-                Call {phoneDisplay}
+                {text.call(phoneDisplay)}
               </a>
               .
             </p>
@@ -161,7 +167,7 @@ export function TableSetter() {
           <svg
             viewBox={`0 0 ${VB_W} ${VB_H}`}
             role="img"
-            aria-label={`A table set for ${guests}`}
+            aria-label={text.svg(guests)}
             className="h-auto w-full"
           >
             <defs>
@@ -222,7 +228,7 @@ export function TableSetter() {
             ))}
           </svg>
           <p className="label mt-3 text-center text-mist">
-            [ Table for {guests} · {day} ]
+            [ {text.caption(guests, text.days[day])} ]
           </p>
         </div>
       </div>

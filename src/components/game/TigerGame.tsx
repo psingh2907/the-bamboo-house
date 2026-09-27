@@ -1,8 +1,12 @@
 "use client";
 
 import { type CSSProperties, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import type { Locale } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
+import { getLenis } from "@/lib/motion";
+import { Accent } from "../ui/Accent";
 import { CritterFace, type CritterKind } from "./Critters";
 
 /**
@@ -10,8 +14,11 @@ import { CritterFace, type CritterKind } from "./Critters";
  * Animals peek out from behind bamboo stalks: tap the tigers, spare the deer
  * and peacocks. A tiger that slips away, or a wrong tap, costs a life.
  *
- * Plain DOM + CSS animations (no canvas, no physics library). Taps never
- * fight page scrolling, so no scroll lock is needed. Pauses off-screen.
+ * Plain DOM + CSS animations (no canvas, no physics library). Pauses
+ * off-screen. Controls follow JP Pizzeria's: one score pill (TIGERS 04 | ●●●),
+ * a "Freeze scroll" toggle that centres the game and locks the page — handy
+ * on phones, where a thumb near the edge can scroll mid-game — and a ••• menu
+ * with Restart / Quit.
  */
 
 type Status = "idle" | "playing" | "over";
@@ -43,12 +50,6 @@ const WIDE = [7, 21, 35, 50, 65, 79, 93];
 const NARROW = [10, 30, 50, 70, 90];
 const NODE_SPACING = [118, 96, 132, 104, 124, 90, 112];
 
-const labels: Record<CritterKind, string> = {
-  tiger: "Tiger — tap it!",
-  deer: "Chital deer — leave it",
-  peacock: "Peacock — leave it",
-};
-
 function pickKind(spawned: number): CritterKind {
   if (spawned < 3) return "tiger";
   const r = Math.random();
@@ -79,7 +80,8 @@ function subscribeWide(onChange: () => void) {
   return () => media.removeEventListener("change", onChange);
 }
 
-export function TigerGame() {
+export function TigerGame({ locale = "en" }: { locale?: Locale }) {
+  const text = t(locale).game;
   const [status, setStatus] = useState<Status>("idle");
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(LIVES);
@@ -88,6 +90,8 @@ export function TigerGame() {
   const [rustle, setRustle] = useState<number[]>(() => WIDE.map(() => 0));
   const [onScreen, setOnScreen] = useState(false);
   const [beatBest, setBeatBest] = useState(false);
+  const [frozen, setFrozen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const field = useRef<HTMLDivElement>(null);
   const nextId = useRef(0);
@@ -127,6 +131,8 @@ export function TigerGame() {
   const endGame = useCallback(() => {
     setStatus("over");
     setCritters([]);
+    setFrozen(false);
+    setMenuOpen(false);
     const final = scoreRef.current;
     // Compare with the old best before saving, for the "new best" message.
     setBeatBest(final > 0 && final > readBest());
@@ -149,9 +155,45 @@ export function TigerGame() {
     setLives(LIVES);
     setCritters([]);
     setPops([]);
+    setMenuOpen(false);
     setStatus("playing");
     trackEvent("game_start");
   };
+
+  const quit = () => {
+    setStatus("idle");
+    setCritters([]);
+    setPops([]);
+    setFrozen(false);
+    setMenuOpen(false);
+  };
+
+  // Freeze scroll: bring the game to the middle of the screen and lock the page.
+  useEffect(() => {
+    if (!frozen) return;
+    const el = field.current;
+    const html = document.documentElement;
+    const lenis = getLenis();
+    if (el) {
+      const r = el.getBoundingClientRect();
+      const top = window.scrollY + r.top - Math.max(0, (window.innerHeight - r.height) / 2);
+      if (lenis) lenis.scrollTo(top, { duration: 0.5, onComplete: () => lenis.stop() });
+      else window.scrollTo({ top, behavior: "smooth" });
+    }
+    const lock = window.setTimeout(() => {
+      html.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+    }, 450);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setFrozen(false);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.clearTimeout(lock);
+      window.removeEventListener("keydown", onKey);
+      html.style.overflow = "";
+      document.body.style.overflow = "";
+      lenis?.start();
+    };
+  }, [frozen]);
 
   // Spawner: faster and busier as the score climbs.
   useEffect(() => {
@@ -202,7 +244,7 @@ export function TigerGame() {
       pop(c, "+1", true);
       setCritters((prev) => prev.map((x) => (x.id === c.id ? { ...x, outcome: "caught" } : x)));
     } else {
-      pop(c, c.kind === "deer" ? "Not the deer!" : "Not the peacock!", false);
+      pop(c, c.kind === "deer" ? text.notDeer : text.notPeacock, false);
       setCritters((prev) => prev.map((x) => (x.id === c.id ? { ...x, outcome: "wrong" } : x)));
       loseLife();
     }
@@ -213,7 +255,7 @@ export function TigerGame() {
     // A tiger that got away costs a life.
     if (!settled.current.has(c.id) && c.kind === "tiger" && status === "playing") {
       settled.current.add(c.id);
-      pop(c, "Missed!", false);
+      pop(c, text.missed, false);
       loseLife();
     }
   };
@@ -236,8 +278,17 @@ export function TigerGame() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 -z-10 flex flex-col items-center justify-center text-center font-display text-[clamp(3.6rem,15vw,13rem)] leading-[0.82] tracking-[-0.04em] text-bamboo/25"
         >
-          <span>The Bamboo</span>
-          <span className="italic">House</span>
+          {locale === "hi" ? (
+            <>
+              <span>द बैम्बू</span>
+              <span className="italic">हाउस</span>
+            </>
+          ) : (
+            <>
+              <span>The Bamboo</span>
+              <span className="italic">House</span>
+            </>
+          )}
         </p>
 
         {/* Critters sit between the wordmark and the stalks, so they slide out from behind them. */}
@@ -256,7 +307,7 @@ export function TigerGame() {
             >
               <button
                 type="button"
-                aria-label={labels[c.kind]}
+                aria-label={text.labels[c.kind]}
                 onPointerDown={() => tap(c)}
                 onClick={() => tap(c)}
                 onAnimationEnd={() => finished(c)}
@@ -305,16 +356,49 @@ export function TigerGame() {
           </span>
         ))}
 
-        {/* HUD */}
+        {/* Controls: ••• menu, Freeze scroll, and the score pill (TIGERS 04 | ●●●). */}
         {status === "playing" && (
-          <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between p-4 sm:p-6">
-            <p className="label rounded-full bg-smoke/80 px-4 py-2 text-cream backdrop-blur-sm">
-              Tigers <span className="ml-1 font-display text-lg tracking-normal text-bamboo tabular-nums">{String(score).padStart(2, "0")}</span>
-            </p>
-            <p className="flex items-center gap-1.5 rounded-full bg-smoke/80 px-4 py-2.5 backdrop-blur-sm" aria-label={`${lives} lives left`}>
-              {Array.from({ length: LIVES }, (_, i) => (
-                <span key={i} className={cn("size-2.5 rounded-full transition-colors", i < lives ? "bg-clay" : "bg-smoke-line")} />
-              ))}
+          <div className="absolute inset-x-0 bottom-0 z-20 flex flex-wrap items-center justify-end gap-2 p-3 sm:p-6">
+            {menuOpen && (
+              <>
+                <button type="button" onClick={start} className={hudButton}>
+                  {text.reset}
+                </button>
+                <button type="button" onClick={quit} className={hudButton}>
+                  {text.quit}
+                </button>
+              </>
+            )}
+            <button
+              type="button"
+              aria-label={text.menu}
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((v) => !v)}
+              className="min-h-10 rounded-full px-3 tracking-widest text-cream transition hover:bg-cream/15 active:scale-90"
+            >
+              •••
+            </button>
+            <button
+              type="button"
+              aria-pressed={frozen}
+              onClick={() => setFrozen((v) => !v)}
+              className={cn(hudButton, frozen && "border-bamboo bg-bamboo/15 text-bamboo-light shadow-[0_0_0_3px_rgba(201,154,85,0.25)]")}
+            >
+              {frozen ? text.unfreeze : text.freeze}
+            </button>
+            <p className="flex min-h-10 items-center gap-3 rounded-full border border-cream/25 bg-smoke/80 px-4 backdrop-blur-sm">
+              <span className="label text-cream">
+                {text.hud}{" "}
+                <span className="ml-1 inline-block align-middle font-display text-2xl leading-none tracking-normal text-bamboo tabular-nums">
+                  {String(score).padStart(2, "0")}
+                </span>
+              </span>
+              <span aria-hidden="true" className="h-5 w-px bg-cream/25" />
+              <span className="flex gap-1.5" aria-label={text.lives(lives)}>
+                {Array.from({ length: LIVES }, (_, i) => (
+                  <span key={i} className={cn("size-2.5 rounded-full transition-colors", i < lives ? "bg-clay" : "bg-smoke-line")} />
+                ))}
+              </span>
             </p>
           </div>
         )}
@@ -323,35 +407,32 @@ export function TigerGame() {
         {status !== "playing" && (
           <div className="absolute inset-0 z-30 flex items-center justify-center bg-smoke/45 p-4 backdrop-blur-[2px]">
             <div className="w-full max-w-sm rounded-[1.75rem] border border-smoke-line bg-smoke/95 p-7 text-center shadow-2xl">
-              <p className="label text-bamboo">[ A game from the Panna forest ]</p>
+              <p className="label text-bamboo">[ {text.eyebrow} ]</p>
               <h2 id="game-title" className="mt-3 font-display text-4xl tracking-[-0.02em] text-cream">
                 {status === "over" ? (
                   <>
-                    {score} {score === 1 ? "tiger" : "tigers"} <em className="text-bamboo">spotted</em>
+                    {text.spotted(score)} <em className="text-bamboo not-italic">{text.spottedAccent}</em>
                   </>
                 ) : (
-                  <>
-                    Spot the <em className="text-bamboo">tiger</em>
-                  </>
+                  <Accent parts={text.title} className="text-bamboo" />
                 )}
               </h2>
 
               {status === "idle" ? (
                 <>
                   <div className="mt-6 flex items-end justify-center gap-5">
-                    <Legend kind="tiger" caption="Tap" good />
-                    <Legend kind="deer" caption="Spare" />
-                    <Legend kind="peacock" caption="Spare" />
+                    <Legend kind="tiger" caption={text.tap} good />
+                    <Legend kind="deer" caption={text.spare} />
+                    <Legend kind="peacock" caption={text.spare} />
                   </div>
                   <p className="mt-5 text-sm leading-relaxed text-mist">
-                    Tigers peek out from the bamboo. Tap them before they slip away — but leave the deer and peacocks be. Three
-                    mistakes and the forest goes quiet.
+                    {text.rules}
                   </p>
                 </>
               ) : (
                 <p className="mt-4 text-sm leading-relaxed text-mist" aria-live="polite">
-                  {beatBest ? "A new best! " : `Your best: ${best}. `}
-                  For the real thing, visit Panna Tiger Reserve — then come and tell us about it over a thali.
+                  {beatBest ? text.newBest : text.yourBest(best)}
+                  {text.outro}
                 </p>
               )}
 
@@ -360,9 +441,9 @@ export function TigerGame() {
                 onClick={start}
                 className="mt-7 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-bamboo px-6 text-sm font-semibold tracking-wide text-smoke transition hover:bg-bamboo-light active:scale-[0.98]"
               >
-                {status === "over" ? "Play again" : "Play"}
+                {status === "over" ? text.again : text.play}
               </button>
-              {status === "idle" && best > 0 && <p className="label mt-4 text-mist">Your best · {best}</p>}
+              {status === "idle" && best > 0 && <p className="label mt-4 text-mist">{text.best(best)}</p>}
             </div>
           </div>
         )}
@@ -370,6 +451,9 @@ export function TigerGame() {
     </section>
   );
 }
+
+const hudButton =
+  "min-h-10 rounded-full border border-cream/30 bg-smoke/70 px-4 text-sm text-cream backdrop-blur-sm transition hover:bg-cream/15 active:scale-95";
 
 function Legend({ kind, caption, good }: { kind: CritterKind; caption: string; good?: boolean }) {
   return (

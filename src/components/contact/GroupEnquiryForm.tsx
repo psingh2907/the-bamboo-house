@@ -2,6 +2,8 @@
 
 import { type FormEvent, useState } from "react";
 import { business } from "@/data/business";
+import type { Locale } from "@/i18n";
+import { t } from "@/i18n/dictionaries";
 import { trackEvent } from "@/lib/analytics";
 import { whatsappHref } from "@/lib/contact";
 import { Icon } from "../ui/Icon";
@@ -24,7 +26,8 @@ const today = () => {
  * WhatsApp message the guest reviews and sends themselves. That keeps the
  * site static, spam-free and free of personal data.
  */
-export function GroupEnquiryForm() {
+export function GroupEnquiryForm({ locale = "en" }: { locale?: Locale }) {
+  const text = t(locale).form;
   const [errors, setErrors] = useState<Errors>({});
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -38,9 +41,9 @@ export function GroupEnquiryForm() {
     const notes = String(data.get("notes") ?? "").trim().slice(0, 500);
 
     const next: Errors = {};
-    if (name.length < 2) next.name = "Please tell us your name.";
-    if (!Number.isInteger(guests) || guests < 1 || guests > 200) next.guests = "Enter the number of guests (1–200).";
-    if (!date || date < today()) next.date = "Choose today or a later date.";
+    if (name.length < 2) next.name = text.errors.name;
+    if (!Number.isInteger(guests) || guests < 1 || guests > 200) next.guests = text.errors.guests;
+    if (!date || date < today()) next.date = text.errors.date;
     setErrors(next);
     if (Object.keys(next).length) {
       const first = event.currentTarget.querySelector<HTMLElement>(`[name="${Object.keys(next)[0]}"]`);
@@ -49,13 +52,13 @@ export function GroupEnquiryForm() {
     }
 
     const message = [
-      `Hello ${business.name}, I'd like to enquire about a group visit.`,
-      `Name: ${name}`,
-      `Guests: ${guests}`,
-      `Date: ${new Date(`${date}T00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}`,
-      time && `Time: ${time}`,
-      occasion && `Occasion: ${occasion}`,
-      notes && `Notes: ${notes}`,
+      text.message.intro,
+      `${text.message.name}: ${name}`,
+      `${text.message.guests}: ${guests}`,
+      `${text.message.date}: ${new Date(`${date}T00:00`).toLocaleDateString(text.dateLocale, { day: "numeric", month: "long", year: "numeric" })}`,
+      time && `${text.message.time}: ${time}`,
+      occasion && `${text.message.occasion}: ${occasion}`,
+      notes && `${text.message.notes}: ${notes}`,
     ]
       .filter(Boolean)
       .join("\n");
@@ -77,50 +80,48 @@ export function GroupEnquiryForm() {
     <form noValidate onSubmit={onSubmit} className="grid gap-5 sm:grid-cols-2">
       <div className="sm:col-span-2">
         <label htmlFor="name" className={labelCls}>
-          Your name
+          {text.name}
         </label>
         <input id="name" name="name" autoComplete="name" className={field} aria-invalid={!!errors.name} aria-describedby={errors.name ? "name-error" : undefined} />
         {error("name")}
       </div>
       <div>
         <label htmlFor="guests" className={labelCls}>
-          Number of guests
+          {text.guests}
         </label>
         <input id="guests" name="guests" type="number" inputMode="numeric" min={1} max={200} className={field} aria-invalid={!!errors.guests} aria-describedby={errors.guests ? "guests-error" : undefined} />
         {error("guests")}
       </div>
       <div>
         <label htmlFor="occasion" className={labelCls}>
-          Occasion <span className="font-normal text-muted">(optional)</span>
+          {text.occasion} <span className="font-normal text-muted">{text.optional}</span>
         </label>
         <select id="occasion" name="occasion" className={field} defaultValue="">
-          <option value="">Just a meal</option>
-          <option>Birthday</option>
-          <option>Anniversary</option>
-          <option>Family gathering</option>
-          <option>Travel group</option>
-          <option>Office / team</option>
-          <option>Other</option>
+          {text.occasions.map((o, i) => (
+            <option key={o} value={i === 0 ? "" : o}>
+              {o}
+            </option>
+          ))}
         </select>
       </div>
       <div>
         <label htmlFor="date" className={labelCls}>
-          Date
+          {text.date}
         </label>
         <input id="date" name="date" type="date" min={today()} className={field} aria-invalid={!!errors.date} aria-describedby={errors.date ? "date-error" : undefined} />
         {error("date")}
       </div>
       <div>
         <label htmlFor="time" className={labelCls}>
-          Time <span className="font-normal text-muted">(optional)</span>
+          {text.time} <span className="font-normal text-muted">{text.optional}</span>
         </label>
         <input id="time" name="time" type="time" min={business.hours.opens} max={business.hours.closes} className={field} />
       </div>
       <div className="sm:col-span-2">
         <label htmlFor="notes" className={labelCls}>
-          Anything we should know? <span className="font-normal text-muted">(optional)</span>
+          {text.notes} <span className="font-normal text-muted">{text.optional}</span>
         </label>
-        <textarea id="notes" name="notes" rows={3} maxLength={500} className={field} placeholder="Seating, dietary needs, a cake to keep cold…" />
+        <textarea id="notes" name="notes" rows={3} maxLength={500} className={field} placeholder={text.notesPlaceholder} />
       </div>
       <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row sm:items-center">
         <button
@@ -128,9 +129,9 @@ export function GroupEnquiryForm() {
           className="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-whatsapp px-7 text-sm font-semibold text-smoke transition hover:brightness-110 active:scale-[0.98]"
         >
           <Icon name="whatsapp" className="size-5" />
-          Send enquiry on WhatsApp
+          {text.submit}
         </button>
-        <p className="text-sm text-muted">Opens WhatsApp with your details filled in. Nothing is stored on this site.</p>
+        <p className="text-sm text-muted">{text.note}</p>
       </div>
     </form>
   );
