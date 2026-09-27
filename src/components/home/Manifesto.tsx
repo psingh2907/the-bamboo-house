@@ -18,11 +18,14 @@ export function Manifesto() {
     () => {
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
+        // Colour, not opacity: the dim state (#807262, 4:1 on smoke) still
+        // passes contrast for large text, so the paragraph is readable before
+        // it lights up.
         gsap.fromTo(
           "[data-word]",
-          { opacity: 0.16 },
+          { color: "#807262" },
           {
-            opacity: 1,
+            color: "#fbf7ef",
             ease: "none",
             stagger: 0.1,
             scrollTrigger: { trigger: "[data-words]", start: "top 80%", end: "bottom 45%", scrub: true },

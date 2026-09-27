@@ -32,17 +32,19 @@ interface ArtworkProps {
   className?: string;
   /** Crop to part of the 400×500 canvas, e.g. just the plate. */
   viewBox?: string;
+  /** Render as a standalone .svg file (xmlns + intrinsic size, no a11y attrs — the <img> carries alt). */
+  standalone?: boolean;
 }
 
-export function Artwork({ spec, label, className, viewBox = `0 0 ${W} ${H}` }: ArtworkProps) {
-  const id = useId().replace(/:/g, "");
+export function Artwork({ spec, label, className, viewBox = `0 0 ${W} ${H}`, standalone }: ArtworkProps) {
+  const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   return (
     <svg
       viewBox={viewBox}
       preserveAspectRatio="xMidYMid slice"
-      role="img"
-      aria-label={label}
-      className={className}
+      {...(standalone
+        ? { xmlns: "http://www.w3.org/2000/svg", width: W, height: H }
+        : { role: "img", "aria-label": label, className })}
     >
       {render(spec, id)}
     </svg>

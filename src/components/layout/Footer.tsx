@@ -72,7 +72,12 @@ export function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col gap-3 border-t border-smoke-line pt-6 text-xs sm:flex-row sm:justify-between">
-          <p>© {year} {business.name}. All rights reserved.</p>
+          <p>
+            © {year} {business.name}. All rights reserved. ·{" "}
+            <Link href="/privacy" className="hover:text-bamboo-light">
+              Privacy
+            </Link>
+          </p>
           <p>Syamardanda · Devendranagar · Panna · Madhya Pradesh</p>
         </div>
       </div>

@@ -82,7 +82,8 @@ export function ExperienceStory() {
                 <p
                   className={cn(
                     "font-display text-[clamp(4rem,9vw,8rem)] leading-none tracking-[-0.04em] transition-colors duration-700",
-                    i === active ? "text-clay" : "text-ink/15",
+                    // Faded, but still 3.3:1 for large text (was ink/15, 1.4:1).
+                    i === active ? "text-clay" : "text-[#948779]",
                   )}
                 >
                   {chapter.number}

@@ -13,12 +13,22 @@ import { business } from "@/data/business";
 import { LOADER_INIT_SCRIPT } from "@/lib/intro";
 import "./globals.css";
 
+// Upright display face: preloaded, weight axis only (the opsz/SOFT axes more
+// than doubled the file size for a barely visible difference).
 const display = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
-  style: ["normal", "italic"],
-  axes: ["opsz", "SOFT"],
   display: "swap",
+});
+
+// Italic is only used for accent words, so it is not preloaded: it arrives
+// after first paint instead of competing with the page. See globals.css.
+const displayItalic = Fraunces({
+  variable: "--font-fraunces-italic",
+  subsets: ["latin"],
+  style: "italic",
+  display: "swap",
+  preload: false,
 });
 
 const body = Manrope({
@@ -50,7 +60,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // suppressHydrationWarning: the head script adds loader classes to <html> before React hydrates.
-    <html lang="en-IN" className={`${display.variable} ${body.variable} antialiased`} suppressHydrationWarning>
+    <html lang="en-IN" className={`${display.variable} ${displayItalic.variable} ${body.variable} antialiased`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: LOADER_INIT_SCRIPT }} />
       </head>

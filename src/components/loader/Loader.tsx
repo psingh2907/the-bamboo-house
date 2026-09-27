@@ -6,7 +6,7 @@ import { business } from "@/data/business";
 import { INTRO_DONE_EVENT, INTRO_STORAGE_KEY } from "@/lib/intro";
 
 const SEGMENTS = 10;
-const MIN_MS = 1300; // long enough to read as intentional
+const MIN_MS = 1000; // long enough to read as intentional
 const MAX_MS = 2600; // never hold a slow connection hostage
 const BLINDS = 5;
 
@@ -20,11 +20,16 @@ const labels: [number, string][] = [
  * First-visit loader: a bamboo stalk grows one segment per 10% while the
  * counter runs to 100, a leaf unfurls, then bamboo chik blinds roll up to
  * reveal the page. Progress tracks real work (fonts, page load), clamped
- * between MIN_MS and MAX_MS.
+ * between MIN_MS and MAX_MS. Tap, click or Escape skips straight to the reveal.
+ *
+ * The counter is drawn on <canvas> on purpose: it is the biggest text on
+ * screen, and as live text it became the page's Largest Contentful Paint,
+ * pushing LCP to the end of the intro. Canvas is not an LCP candidate, so LCP
+ * is the hero headline that is already painted underneath.
  */
 export function Loader() {
   const root = useRef<HTMLDivElement>(null);
-  const counter = useRef<HTMLSpanElement>(null);
+  const counter = useRef<HTMLCanvasElement>(null);
   const label = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -51,6 +56,14 @@ export function Loader() {
     }
 
     const segments = [...el.querySelectorAll<SVGGElement>("[data-segment]")];
+    const drawCounter = counterPainter(counter.current);
+    let skipRequested = false;
+    const requestSkip = () => (skipRequested = true);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Enter" || e.key === " ") requestSkip();
+    };
+    el.addEventListener("pointerdown", requestSkip);
+    window.addEventListener("keydown", onKey);
     const leaf = el.querySelector<SVGGElement>("[data-leaf]");
     const start = performance.now();
     let real = 0.35; // the app has hydrated
@@ -64,7 +77,7 @@ export function Loader() {
 
     const render = (p: number) => {
       segments.forEach((seg, i) => (seg.style.transform = `scaleY(${gsap.utils.clamp(0, 1, p * SEGMENTS - i)})`));
-      if (counter.current) counter.current.textContent = String(Math.round(p * 100)).padStart(3, "0");
+      drawCounter(String(Math.round(p * 100)).padStart(3, "0"));
       const text = labels.filter(([at]) => p >= at).at(-1)?.[1];
       if (label.current && text && label.current.textContent !== text) label.current.textContent = text;
     };
@@ -99,11 +112,15 @@ export function Loader() {
         return;
       }
       const elapsed = now - start;
-      const target = elapsed >= MAX_MS ? 1 : Math.min(real, elapsed / MIN_MS);
-      shown += (target - shown) * 0.12;
+      const target = elapsed >= MAX_MS || skipRequested ? 1 : Math.min(real, elapsed / MIN_MS);
+      shown += (target - shown) * (skipRequested ? 0.35 : 0.12);
       if (target === 1 && shown > 0.995) shown = 1;
       render(shown);
-      if (shown >= 1) reveal();
+      if (shown >= 1) {
+        el.removeEventListener("pointerdown", requestSkip);
+        window.removeEventListener("keydown", onKey);
+        reveal();
+      }
       else frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
@@ -114,6 +131,8 @@ export function Loader() {
       // failsafe covers anything that never finishes.
       cancelAnimationFrame(frame);
       window.removeEventListener("load", onLoad);
+      el.removeEventListener("pointerdown", requestSkip);
+      window.removeEventListener("keydown", onKey);
     };
   }, []);
 
@@ -131,6 +150,7 @@ export function Loader() {
       </div>
 
       <div data-stage className="absolute inset-0 bg-[radial-gradient(ellipse_55%_60%_at_50%_45%,rgba(22,17,12,0.92),rgba(22,17,12,0.55))]">
+        <p className="label absolute top-5 right-5 text-bamboo/80 sm:top-8 sm:right-8">[ Tap to skip ]</p>
         {/* The growing stalk */}
         <svg viewBox="0 0 80 460" className="absolute bottom-0 left-1/2 h-[80svh] -translate-x-1/2 overflow-visible">
           <defs>
@@ -171,9 +191,7 @@ export function Loader() {
               Lighting the lamps
             </span>
             <span className="mt-2 flex items-start font-display leading-[0.8] tracking-[-0.05em]">
-              <span ref={counter} className="text-[clamp(5rem,18vw,11rem)] tabular-nums">
-                000
-              </span>
+              <canvas ref={counter} className="block h-[clamp(4rem,14.4vw,8.8rem)] w-[clamp(8.4rem,30vw,18.5rem)]" />
               <span className="mt-2 text-2xl text-clay">%</span>
             </span>
           </div>
@@ -186,4 +204,41 @@ export function Loader() {
       </div>
     </div>
   );
+}
+
+/**
+ * Returns a function that paints the 3-digit counter in the display font.
+ * Each digit sits in a fixed-width cell so the number doesn't jitter.
+ */
+function counterPainter(canvas: HTMLCanvasElement | null) {
+  const ctx = canvas?.getContext("2d");
+  if (!canvas || !ctx) return () => {};
+  let width = 0;
+  let height = 0;
+  let family = "";
+
+  const setup = () => {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    width = rect.width;
+    height = rect.height;
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    family = getComputedStyle(canvas).fontFamily;
+  };
+  setup();
+
+  return (text: string) => {
+    if (canvas.getBoundingClientRect().width !== width) setup();
+    // Digits are ~0.72em tall in Fraunces; size the font so they fill the box.
+    const size = height / 0.74;
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = "#fbf7ef";
+    ctx.font = `400 ${size}px ${family}`;
+    ctx.textBaseline = "alphabetic";
+    ctx.textAlign = "center";
+    const cell = width / text.length;
+    [...text].forEach((digit, i) => ctx.fillText(digit, cell * (i + 0.5), height - 1));
+  };
 }

@@ -65,8 +65,8 @@ export function Hero() {
         gsap
           .timeline({ scrollTrigger: scrub })
           .to("[data-hero-plate]", { rotate: 50, scale: 0.78, ease: "none" }, 0)
-          .to("[data-hero-guides]", { scale: 1.25, autoAlpha: 0, ease: "none" }, 0)
-          .to("[data-hero-copy]", { y: -80, autoAlpha: 0, ease: "none" }, 0);
+          .to("[data-hero-guides]", { scale: 1.25, opacity: 0, ease: "none" }, 0)
+          .to("[data-hero-copy]", { y: -80, opacity: 0, ease: "none" }, 0);
       });
       // Phones: the hero is taller than the screen, so only the plate turns — the
       // buttons stay fully readable.

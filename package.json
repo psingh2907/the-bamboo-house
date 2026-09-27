@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "art": "tsx scripts/build-art.tsx",
+    "predev": "pnpm art",
     "dev": "next dev",
+    "prebuild": "pnpm art",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -24,6 +27,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   },
   "packageManager": "pnpm@12.3.4"

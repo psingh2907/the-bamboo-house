@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { siteConfig } from "@/config/site";
 import type { Visual } from "@/data/types";
+import { artUrl } from "@/lib/art";
 import { cn } from "@/lib/cn";
-import { Artwork } from "./Artwork";
 
 interface MediaProps {
   visual: Visual;
@@ -16,7 +16,7 @@ interface MediaProps {
 
 /**
  * One image slot. Renders the real photo when it exists, otherwise the
- * illustrated stand-in. Always fills its (positioned) parent.
+ * illustrated stand-in (a static SVG file). Always fills its (positioned) parent.
  */
 export function Media({ visual, sizes, className, priority, showLabel = true }: MediaProps) {
   const { photo, art, alt, shot } = visual;
@@ -25,7 +25,8 @@ export function Media({ visual, sizes, className, priority, showLabel = true }: 
       {photo ? (
         <Image src={photo.src} alt={alt} fill sizes={sizes} priority={priority} className="object-cover" />
       ) : (
-        <Artwork spec={art} label={alt} className="size-full" />
+        // Prerendered static SVG (see src/lib/art.ts), lazy-loaded like a photo.
+        <Image src={artUrl(art)} alt={alt} fill unoptimized sizes={sizes} priority={priority} className="object-cover" />
       )}
       {!photo && showLabel && siteConfig.prototypeMode && (
         <span

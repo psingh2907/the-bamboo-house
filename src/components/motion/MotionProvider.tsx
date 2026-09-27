@@ -22,7 +22,8 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
  *
  * Everything is skipped for visitors who prefer reduced motion — content is
  * simply visible. Nothing is hidden by CSS, so a script failure never hides
- * content.
+ * content. Only opacity is animated (never `visibility`), so unrevealed
+ * sections stay readable by screen readers and in-page search.
  */
 export function MotionProvider() {
   const pathname = usePathname();
@@ -66,9 +67,9 @@ export function MotionProvider() {
           const clip = el.dataset.reveal === "clip";
           gsap.fromTo(
             el,
-            clip ? { clipPath: "inset(100% 0% 0% 0%)" } : { autoAlpha: 0, y: 36 },
+            clip ? { clipPath: "inset(100% 0% 0% 0%)" } : { opacity: 0, y: 36 },
             {
-              ...(clip ? { clipPath: "inset(0% 0% 0% 0%)" } : { autoAlpha: 1, y: 0 }),
+              ...(clip ? { clipPath: "inset(0% 0% 0% 0%)" } : { opacity: 1, y: 0 }),
               duration: clip ? 1.4 : 1.1,
               ease: "expo.out",
               scrollTrigger: { trigger: el, start: "top 88%", once: true },
@@ -79,9 +80,9 @@ export function MotionProvider() {
         gsap.utils.toArray<HTMLElement>("[data-reveal-stagger]").forEach((group) => {
           gsap.fromTo(
             group.children,
-            { autoAlpha: 0, y: 32 },
+            { opacity: 0, y: 32 },
             {
-              autoAlpha: 1,
+              opacity: 1,
               y: 0,
               duration: 1,
               ease: "expo.out",

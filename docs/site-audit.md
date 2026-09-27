@@ -99,3 +99,37 @@ Production build (`pnpm build && pnpm start`), Lighthouse 12, mobile emulation
 4. **Launch** — prototype mode off, domain, Search Console, GA4 key events.
 5. **Monthly** — Search Console queries, GA4 calls/directions/WhatsApp, new
    reviews into `reviews.ts`, menu updates.
+
+## Results after the fix pass (branch `audit-fixes`)
+
+Same setup (production build, Lighthouse 12, mobile, throttled 4G).
+
+| | Before | After |
+|---|---|---|
+| Performance — home / menu | 76 / 81 | **91 / 91** |
+| Accessibility — home / menu | 95 / 100 | 97+ / 100 |
+| LCP (home) | 5.6 s (loader counter) | **3.5 s** (real content) |
+| FCP (home) | 2.1 s | **1.5 s** |
+| TBT (home) | 90 ms | 60 ms |
+| Home HTML | 675 KB (134 KB gzip) | **170 KB (28 KB gzip)** |
+| DOM (home) | 3,761 | **947** |
+| Fonts preloaded | 295 KB (3 files) | **59 KB (2 files)**; italic loads after paint |
+| Security headers | none | CSP, HSTS, nosniff, frame-deny, referrer, permissions |
+
+What changed:
+1. Loader counter drawn on `<canvas>`; tap / click / Escape skips; MIN 1.0 s.
+2. Illustrations prerendered to `public/art/*.svg` by `scripts/build-art.tsx`
+   (runs before `dev` and `build`), loaded lazily via `next/image`.
+3. Reveals animate opacity only (content stays in the accessibility tree).
+4. Manifesto dims by colour (#807262, 4:1); faded chapter numbers 3.3:1.
+5. Fraunces: weight axis only; italic is a separate, non-preloaded face.
+6. Security headers in `next.config.ts` (CSP allows Google Maps + GA4).
+7. `/privacy` page (draft for owner approval), linked in footer + sitemap.
+8. Baseline committed to `main`; fixes on `audit-fixes`.
+
+Remaining LCP (3.5 s) is the display font arriving on a throttled 4G
+profile. Next lever if needed: `font-display: optional` for Fraunces, or
+self-hosting a subset (digits + Latin) of the display face.
+
+Still open: GA4 should load only after consent once it is switched on
+(DPDP Act); a Terms page if the owner wants one.
