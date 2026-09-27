@@ -1,0 +1,361 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+/* ─── Design tokens ─────────────────────────────────────────────────────
+   Taken from the restaurant's own interior (Google Maps photo, Sep 2026):
+   bamboo-slat walls under warm light, smoked dark-wood tables and chairs,
+   and terracotta clay pots hung from the ceiling. Re-check against the
+   logo and professional photography once the owner shares them. */
+@theme {
+  --color-smoke: #16110c; /* smoked wood, the "stage" background */
+  --color-smoke-soft: #211a13;
+  --color-smoke-line: #3b2f23;
+  --color-bamboo: #c99a55; /* bamboo slats under warm light */
+  --color-bamboo-light: #e7cf9e;
+  --color-bamboo-deep: #8c6630;
+  --color-clay: #b0582f; /* hanging clay pots */
+  --color-clay-deep: #8a4020; /* clay as text on light backgrounds (AA) */
+  --color-leaf: #4b5b36;
+  --color-paper: #f5eee1;
+  --color-cream: #fbf7ef;
+  --color-ink: #1d1711;
+  --color-muted: #66584a; /* secondary text on light */
+  --color-mist: #b8aa96; /* secondary text on dark */
+  --color-whatsapp: #25d366;
+
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-rise: rise 1s var(--ease-expo) backwards;
+  --animate-fade: fade 1.2s var(--ease-soft) backwards;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(0.6em);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+@theme inline {
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    background: var(--color-smoke);
+    color-scheme: light;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-bamboo);
+    color: var(--color-smoke);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-bamboo);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+/* Space for the fixed mobile action bar. */
+@utility pb-action-bar {
+  padding-bottom: calc(4.25rem + env(safe-area-inset-bottom));
+}
+
+/* Bracketed technical label, e.g. [ 4.7 / 5 ]. */
+@utility label {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@utility container-x {
+  width: 100%;
+  max-width: 88rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+
+  @media (min-width: 640px) {
+    padding-inline: 2rem;
+  }
+
+  @media (min-width: 1024px) {
+    padding-inline: 3.5rem;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ─── Hero intro (CSS only, so it never waits for JavaScript) ────────── */
+.intro-line {
+  animation: var(--animate-rise);
+}
+
+.intro-fade {
+  animation: var(--animate-fade);
+}
+
+/* The hero plate settles into place (fill "backwards" so scroll animation can take over). */
+.plate-in {
+  animation: plate-in 1.6s var(--ease-expo) 0.35s backwards;
+}
+
+@keyframes plate-in {
+  from {
+    opacity: 0;
+    transform: scale(0.82) rotate(-28deg);
+  }
+}
+
+/* Blueprint guide lines draw themselves in. */
+.draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 1.6s var(--ease-soft) forwards;
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── First-visit loader ─────────────────────────────────────────────────
+   Hidden unless the <head> script marked this visit as a first load. */
+#loader {
+  display: none;
+}
+
+html.is-loading #loader,
+html.loader-revealing #loader {
+  display: block;
+}
+
+html.is-loading {
+  overflow: hidden;
+}
+
+/* The page's own intro waits until the blinds start to lift. */
+html.is-loading :is(.intro-line, .intro-fade, .plate-in, .draw) {
+  animation-play-state: paused;
+}
+
+/* Chik blind: thin horizontal bamboo sticks, fully opaque. */
+.chik {
+  background-color: var(--color-smoke);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #4a3217 0 1px,
+    #a57a3c 1px 3px,
+    #6b4a22 3px 5px,
+    #1c140c 5px 7px
+  );
+}
+
+/* ─── Spot the Tiger ─────────────────────────────────────────────────── */
+.culm {
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(var(--node, 110px) - 5px),
+      #4a3217 calc(var(--node, 110px) - 5px) calc(var(--node, 110px) - 1px),
+      rgba(240, 207, 143, 0.45) calc(var(--node, 110px) - 1px) var(--node, 110px)
+    ),
+    linear-gradient(90deg, #6b4520, #d6a760 40%, #c08c47 62%, #5e3c1b);
+  transform-origin: 50% 100%;
+}
+
+.rustle {
+  animation: rustle 0.55s var(--ease-soft);
+}
+
+@keyframes rustle {
+  30% {
+    transform: rotate(-1.4deg);
+  }
+  65% {
+    transform: rotate(1deg);
+  }
+}
+
+/* Peeking: slide out from behind the stalk, wait, slide back.
+   The !important durations keep the game playable under the global
+   reduced-motion rule, which switches it to a fade instead. */
+.critter {
+  cursor: pointer;
+  animation-duration: var(--dur) !important;
+  animation-delay: 180ms !important;
+  animation-timing-function: var(--ease-soft);
+  animation-fill-mode: both;
+}
+
+.critter-r {
+  animation-name: peek-r;
+}
+
+.critter-l {
+  animation-name: peek-l;
+}
+
+@keyframes peek-r {
+  0%,
+  100% {
+    transform: translateX(-100%);
+  }
+  16%,
+  84% {
+    transform: translateX(-18%);
+  }
+}
+
+@keyframes peek-l {
+  0%,
+  100% {
+    transform: translateX(100%);
+  }
+  16%,
+  84% {
+    transform: translateX(18%);
+  }
+}
+
+.critter-caught,
+.critter-wrong {
+  animation-duration: 0.45s !important;
+  animation-delay: 0ms !important;
+  pointer-events: none;
+}
+
+.critter-caught {
+  animation-name: caught;
+}
+
+.critter-wrong {
+  animation-name: wrong;
+}
+
+@keyframes caught {
+  0% {
+    transform: translateX(0) scale(1);
+  }
+  30% {
+    transform: translateX(0) scale(1.18) rotate(-6deg);
+  }
+  100% {
+    transform: translateX(0) scale(0.2);
+    opacity: 0;
+  }
+}
+
+@keyframes wrong {
+  0%,
+  100% {
+    transform: translateX(0);
+    filter: none;
+  }
+  20%,
+  60% {
+    transform: translateX(-8%);
+    filter: sepia(1) hue-rotate(-40deg) saturate(3);
+  }
+  40%,
+  80% {
+    transform: translateX(8%);
+  }
+}
+
+.game-paused .critter {
+  animation-play-state: paused;
+}
+
+.game-pop {
+  animation: game-pop 0.9s var(--ease-expo) forwards !important;
+}
+
+@keyframes game-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -10px) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -48px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .critter-r,
+  .critter-l {
+    animation-name: peek-fade;
+  }
+
+  @keyframes peek-fade {
+    0%,
+    100% {
+      opacity: 0;
+      transform: none;
+    }
+    10%,
+    90% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
