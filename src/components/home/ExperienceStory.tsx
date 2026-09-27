@@ -36,7 +36,7 @@ export function ExperienceStory() {
   );
 
   return (
-    <section ref={root} aria-labelledby="experience-title" className="bg-cream py-24 sm:py-32">
+    <section ref={root} id="experience" aria-labelledby="experience-title" className="scroll-mt-20 bg-cream py-24 sm:py-32">
       <div className="container-x">
         <SectionHeading
           eyebrow="04 — The experience"

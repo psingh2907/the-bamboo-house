@@ -232,7 +232,8 @@ function Thali({ id, seed, hue }: { id: string; seed: number; hue: number }) {
     const y = cy + sin(a) * 118;
     const raita = i === 2;
     return (
-      <g key={i}>
+      // data-katori: the hero's "thali journey" lifts these bowls off the plate.
+      <g key={i} data-katori={i} data-cx={x} data-cy={y}>
         <circle cx={x + 4} cy={y + 6} r={40} fill="#000" opacity={0.35} filter={`url(#${id}-shadow)`} />
         <circle cx={x} cy={y} r={38} fill={`url(#${id}-steel)`} />
         <circle cx={x} cy={y} r={30} fill={raita ? "#f1ead8" : `hsl(${h} 68% ${36 + r() * 12}%)`} />

@@ -18,7 +18,7 @@ const facts = [
 
 export function PlaceIntro() {
   return (
-    <section aria-labelledby="place-title" className="bg-paper py-24 sm:py-32">
+    <section id="place" aria-labelledby="place-title" className="scroll-mt-20 bg-paper py-24 sm:py-32">
       <div className="container-x grid items-center gap-14 lg:grid-cols-[1.05fr_1fr] lg:gap-20">
         <div data-reveal="clip" className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-smoke">
           <div data-parallax="0.12" className="absolute -inset-y-[8%] inset-x-0">

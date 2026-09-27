@@ -19,7 +19,7 @@ const layout = [
 
 export function GalleryTeaser() {
   return (
-    <section aria-labelledby="gallery-title" className="bg-smoke py-24 text-cream sm:py-32">
+    <section aria-labelledby="gallery-title" className="lamp bg-smoke py-24 text-cream sm:py-32">
       <div className="container-x">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeading

@@ -366,3 +366,53 @@ html.is-loading :is(.intro-line, .intro-fade, .plate-in, .draw) {
     }
   }
 }
+
+/* ─── Lamp light (see LampLight.tsx) ─────────────────────────────────────
+   A warm glow painted as a background layer, so it always sits under text. */
+.lamp {
+  background-image:
+    radial-gradient(
+      circle 360px at var(--lamp-x, 50%) var(--lamp-y, 50%),
+      rgb(255 188 110 / calc(0.14 * var(--lamp-a, 0))),
+      transparent 70%
+    ),
+    radial-gradient(
+      circle 900px at var(--lamp-x, 50%) var(--lamp-y, 50%),
+      rgb(214 150 70 / calc(0.07 * var(--lamp-a, 0))),
+      transparent 75%
+    );
+}
+
+/* ─── Table setter ────────────────────────────────────────────────────── */
+.table-top {
+  transition:
+    x 0.55s var(--ease-expo),
+    y 0.55s var(--ease-expo),
+    width 0.55s var(--ease-expo),
+    height 0.55s var(--ease-expo);
+}
+
+.table-seat {
+  transition: transform 0.55s var(--ease-expo);
+  animation: seat-in 0.5s var(--ease-expo) backwards;
+}
+
+@keyframes seat-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Hero scroll cue: a bead of light running down a thin line. */
+.scroll-cue {
+  animation: scroll-cue 1.8s var(--ease-soft) infinite;
+}
+
+@keyframes scroll-cue {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(200%);
+  }
+}

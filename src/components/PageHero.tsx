@@ -11,7 +11,7 @@ interface PageHeroProps {
 /** Dark opening band for inner pages (keeps the transparent navbar legible). */
 export function PageHero({ eyebrow, title, intro, children }: PageHeroProps) {
   return (
-    <section className="relative overflow-hidden bg-smoke pt-36 pb-16 text-cream sm:pt-44 sm:pb-24">
+    <section className="lamp relative overflow-hidden bg-smoke pt-36 pb-16 text-cream sm:pt-44 sm:pb-24">
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_85%_0%,rgba(214,150,70,0.18),transparent_70%)]"

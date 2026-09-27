@@ -38,7 +38,7 @@ export function Manifesto() {
   );
 
   return (
-    <section ref={root} aria-label="Our idea" className="bg-smoke py-28 text-cream sm:py-40">
+    <section ref={root} id="idea" aria-label="Our idea" className="lamp scroll-mt-20 bg-smoke py-28 text-cream sm:py-40">
       <div className="container-x">
         <p className="label text-bamboo">[ 01 — The idea ]</p>
         <p data-words className="mt-8 max-w-6xl font-display text-[clamp(2rem,4.6vw,4.25rem)] leading-[1.08] tracking-[-0.02em]">

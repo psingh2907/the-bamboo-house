@@ -6,6 +6,7 @@ import { MobileActionBar } from "@/components/layout/MobileActionBar";
 import { Navbar } from "@/components/layout/Navbar";
 import { PrototypeBanner } from "@/components/layout/PrototypeBanner";
 import { Loader } from "@/components/loader/Loader";
+import { LampLight } from "@/components/motion/LampLight";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { RestaurantSchema } from "@/components/seo/RestaurantSchema";
 import { siteConfig } from "@/config/site";
@@ -77,6 +78,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Footer />
         <MobileActionBar />
         <MotionProvider />
+        <LampLight />
         <RestaurantSchema />
 
         {siteConfig.gaId && (

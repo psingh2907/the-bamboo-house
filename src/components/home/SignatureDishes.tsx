@@ -6,7 +6,7 @@ import { SectionHeading } from "../ui/SectionHeading";
 /** 4–6 visually strong dishes rather than the whole menu (brief §13). */
 export function SignatureDishes() {
   return (
-    <section aria-labelledby="dishes-title" className="overflow-hidden bg-smoke py-24 text-cream sm:py-32">
+    <section id="food" aria-labelledby="dishes-title" className="lamp scroll-mt-20 overflow-hidden bg-smoke py-24 text-cream sm:py-32">
       <div className="container-x">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeading
@@ -30,11 +30,16 @@ export function SignatureDishes() {
       {/* Phones: swipeable row. Desktop: grid. */}
       <ul
         data-reveal-stagger
+        data-dish-grid
         className="no-scrollbar mt-14 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-2 sm:scroll-px-8 sm:px-8 lg:container-x lg:grid lg:grid-cols-3 lg:gap-x-6 lg:gap-y-14 lg:overflow-visible"
       >
         {signatureDishes.map((dish) => (
           <li key={dish.name} className="group w-[78vw] max-w-sm shrink-0 snap-start sm:w-[44vw] lg:w-auto lg:max-w-none">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-smoke-soft">
+            <div
+              // Landing spot for a bowl from the hero thali (see ThaliJourney).
+              data-dish-slot={dish.visual?.art.kind === "plate" && !dish.visual.art.thali ? "" : undefined}
+              className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-smoke-soft"
+            >
               <div className="absolute inset-0 transition-transform duration-[1.2s] ease-[var(--ease-expo)] group-hover:scale-[1.05]">
                 {dish.visual && <Media visual={dish.visual} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 44vw, 78vw" />}
               </div>

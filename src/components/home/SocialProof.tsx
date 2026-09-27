@@ -12,7 +12,7 @@ export function SocialProof() {
   const { value, count, source } = business.rating;
 
   return (
-    <section aria-labelledby="reviews-title" className="relative overflow-hidden bg-smoke-soft py-24 text-cream sm:py-32">
+    <section aria-labelledby="reviews-title" className="lamp relative overflow-hidden bg-smoke-soft py-24 text-cream sm:py-32">
       {/* Oversized rating as a backdrop */}
       <p
         aria-hidden="true"

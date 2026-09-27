@@ -6,7 +6,7 @@ import { OpenStatus } from "./ui/OpenStatus";
 import { SectionHeading } from "./ui/SectionHeading";
 
 /** The main conversion section (brief §18): Call · WhatsApp · Directions. */
-export function VisitSection({ eyebrow = "08 — Visit", headingLevel = "h2" }: { eyebrow?: string; headingLevel?: "h1" | "h2" }) {
+export function VisitSection({ eyebrow = "09 — Visit", headingLevel = "h2" }: { eyebrow?: string; headingLevel?: "h1" | "h2" }) {
   const rows = [
     { label: "Address", value: <address className="not-italic">{fullAddress}</address> },
     { label: "Plus code", value: business.address.plusCode },

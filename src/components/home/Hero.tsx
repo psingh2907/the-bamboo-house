@@ -170,6 +170,19 @@ export function Hero() {
             </div>
           </dl>
         </div>
+
+        {/* Scroll cue — only on wide screens, where there is room between the copy and the stats. */}
+        <a
+          href="#idea"
+          data-hero-copy
+          className="intro-fade absolute bottom-7 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-mist transition-colors hover:text-bamboo-light 2xl:flex"
+          style={{ animationDelay: "1.2s" }}
+        >
+          <span className="label text-[0.6rem]">Scroll</span>
+          <span aria-hidden="true" className="relative h-10 w-px overflow-hidden bg-smoke-line">
+            <span className="scroll-cue absolute inset-x-0 top-0 h-1/2 bg-bamboo" />
+          </span>
+        </a>
       </div>
     </section>
   );

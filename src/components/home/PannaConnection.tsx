@@ -10,7 +10,7 @@ import { SectionHeading } from "../ui/SectionHeading";
  */
 export function PannaConnection() {
   return (
-    <section aria-labelledby="panna-title" className="overflow-hidden bg-paper py-24 sm:py-32">
+    <section id="panna" aria-labelledby="panna-title" className="scroll-mt-20 overflow-hidden bg-paper py-24 sm:py-32">
       <div className="container-x flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
         <SectionHeading
           eyebrow="06 — Around Panna"
