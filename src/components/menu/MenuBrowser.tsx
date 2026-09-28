@@ -76,7 +76,7 @@ export function MenuBrowser({ menu, locale = "en" }: { menu: MenuCategory[]; loc
                 history.replaceState(null, "", `#${category.id}`);
               }}
               className={cn(
-                "shrink-0 rounded-full px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors",
+                "inline-flex min-h-11 shrink-0 items-center rounded-full px-4 text-sm font-semibold whitespace-nowrap transition-colors",
                 active === category.id ? "bg-smoke text-cream" : "text-muted hover:bg-ink/5 hover:text-ink",
               )}
             >
@@ -103,7 +103,7 @@ export function MenuBrowser({ menu, locale = "en" }: { menu: MenuCategory[]; loc
                     <DietMark veg={item.veg} locale={locale} />
                     <h3 className="font-display text-xl leading-tight">
                       {pick(locale, item.name, item.nameHi)}
-                      {item.signature && <span className="label ml-2 align-middle text-[0.58rem] text-clay-deep">{text.signature}</span>}
+                      {item.signature && <span className="label ml-2 align-middle text-[0.66rem] text-clay-deep">{text.signature}</span>}
                     </h3>
                     <span aria-hidden="true" className="mb-1 min-w-4 flex-1 border-b border-dotted border-ink/25" />
                     <span className="font-display text-lg text-clay-deep">₹{item.price}</span>

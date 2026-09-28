@@ -1,8 +1,9 @@
 import { business } from "@/data/business";
 import type { Locale } from "@/i18n";
 import { t } from "@/i18n/dictionaries";
-import { addressText, directionsUrl, mapEmbedUrl, phoneDisplay, phoneHref, whatsappHref } from "@/lib/contact";
+import { addressText, directionsUrl, phoneDisplay, phoneHref, whatsappHref } from "@/lib/contact";
 import { hoursText } from "@/lib/hours";
+import { MapEmbed } from "./MapEmbed";
 import { Accent } from "./ui/Accent";
 import { Button } from "./ui/Button";
 import { OpenStatus } from "./ui/OpenStatus";
@@ -27,7 +28,7 @@ export function VisitSection({
   ];
 
   return (
-    <section id="visit" aria-labelledby="visit-title" className="scroll-mt-20 bg-paper py-24 sm:py-32">
+    <section id="visit" aria-labelledby="visit-title" className="scroll-mt-20 bg-paper pt-10 pb-16 sm:py-32">
       <div className="container-x grid gap-14 lg:grid-cols-[1fr_1.15fr] lg:gap-20">
         <div>
           <SectionHeading
@@ -72,14 +73,8 @@ export function VisitSection({
           </div>
         </div>
 
-        <div data-reveal="clip" className="relative min-h-[420px] overflow-hidden rounded-[2rem] bg-cream ring-1 ring-ink/10 lg:min-h-full">
-          <iframe
-            title={text.map}
-            src={mapEmbedUrl}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="absolute inset-0 size-full border-0 grayscale-[35%] sepia-[20%]"
-          />
+        <div data-reveal="clip" className="relative min-h-[300px] overflow-hidden rounded-[1.5rem] bg-cream ring-1 ring-ink/10 sm:min-h-[420px] lg:min-h-full lg:rounded-[2rem]">
+          <MapEmbed locale={locale} />
         </div>
       </div>
     </section>

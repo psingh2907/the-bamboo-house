@@ -365,7 +365,7 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
         ref={field}
         data-phase={status === "playing" ? phase : "day"}
         className={cn(
-          "tiger-field relative isolate h-[clamp(440px,72svh,660px)] touch-manipulation overflow-hidden select-none",
+          "tiger-field relative isolate h-[clamp(400px,62svh,560px)] touch-manipulation lg:h-[clamp(440px,72svh,660px)] overflow-hidden select-none",
           (!onScreen || status !== "playing") && "game-paused",
         )}
         style={{ "--stalk": "clamp(20px, 2.6vw, 36px)", "--critter": "clamp(58px, 7.5vw, 92px)" } as CSSProperties}
@@ -592,7 +592,7 @@ export function TigerGame({ locale = "en" }: { locale?: Locale }) {
                 type="button"
                 onClick={toggleSound}
                 aria-pressed={soundOn}
-                className="label mt-4 inline-flex items-center gap-1.5 text-mist hover:text-bamboo-light"
+                className="label mt-2 inline-flex min-h-11 items-center gap-1.5 text-mist hover:text-bamboo-light"
               >
                 <Icon name={soundOn ? "sound" : "mute"} className="size-4" />
                 {soundOn ? text.soundOn : text.soundOff}

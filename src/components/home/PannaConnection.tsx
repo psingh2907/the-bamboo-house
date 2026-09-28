@@ -6,6 +6,7 @@ import { SectionHeading } from "../ui/SectionHeading";
 import { type Locale, pick } from "@/i18n";
 import { t } from "@/i18n/dictionaries";
 import { Accent } from "../ui/Accent";
+import { ScrollDots } from "../ui/ScrollDots";
 
 /**
  * Places the restaurant inside the wider Panna travel ecosystem (brief §16).
@@ -14,7 +15,7 @@ import { Accent } from "../ui/Accent";
 export function PannaConnection({ locale = "en" }: { locale?: Locale }) {
   const text = t(locale).panna;
   return (
-    <section id="panna" aria-labelledby="panna-title" className="scroll-mt-20 overflow-hidden bg-paper py-24 sm:py-32">
+    <section id="panna" aria-labelledby="panna-title" className="scroll-mt-20 overflow-hidden bg-paper py-16 sm:py-32">
       <div className="container-x flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
         <SectionHeading
           eyebrow={text.eyebrow}
@@ -33,14 +34,15 @@ export function PannaConnection({ locale = "en" }: { locale?: Locale }) {
       </div>
 
       <ul
+        id="panna-cards"
         data-reveal-stagger
-        className="no-scrollbar mt-14 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-2 sm:scroll-px-8 sm:px-8 lg:gap-6 lg:scroll-px-14 lg:px-14"
+        className="no-scrollbar mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-2 sm:scroll-px-8 sm:px-8 lg:gap-6 lg:scroll-px-14 lg:px-14"
       >
         {attractions.map((place, i) => (
           <li key={place.name} className="w-[72vw] max-w-[22rem] shrink-0 snap-start sm:w-[40vw] lg:w-[23vw]">
             <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] bg-smoke">
               <Media visual={place.visual} locale={locale} sizes="(min-width: 1024px) 23vw, (min-width: 640px) 40vw, 72vw" showLabel={false} />
-              <p className="label absolute top-4 left-4 rounded-full bg-cream/85 px-3 py-1.5 text-[0.6rem] text-ink backdrop-blur-sm">
+              <p className="label absolute top-4 left-4 rounded-full bg-cream/85 px-3 py-1.5 text-[0.68rem] text-ink backdrop-blur-sm">
                 0{i + 1} · {pick(locale, place.kind, place.kindHi)}
               </p>
             </div>
@@ -49,8 +51,9 @@ export function PannaConnection({ locale = "en" }: { locale?: Locale }) {
           </li>
         ))}
       </ul>
+      <ScrollDots targetId="panna-cards" count={attractions.length} />
 
-      <p className="container-x mt-10 text-xs text-muted">
+      <p className="container-x mt-8 text-xs text-muted">
         {text.note}
       </p>
     </section>

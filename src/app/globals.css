@@ -106,7 +106,7 @@
 /* Bracketed technical label, e.g. [ 4.7 / 5 ]. */
 @utility label {
   font-family: var(--font-sans);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;

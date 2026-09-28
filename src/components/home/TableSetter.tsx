@@ -67,9 +67,11 @@ export function TableSetter({ locale = "en" }: { locale?: Locale }) {
     );
 
   return (
-    <section id="your-table" aria-labelledby="table-title" className="scroll-mt-20 bg-cream py-24 sm:py-32">
-      <div className="container-x grid items-center gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
-        <div>
+    // Phones: shares the Visit section's background and runs straight into it,
+    // in the order heading → table → controls (grid areas below).
+    <section id="your-table" aria-labelledby="table-title" className="scroll-mt-20 bg-paper pt-16 pb-2 lg:bg-cream lg:py-32">
+      <div className="container-x grid gap-6 [grid-template-areas:'head'_'table'_'controls'] lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-x-20 lg:gap-y-10 lg:[grid-template-areas:'head_table'_'controls_table']">
+        <div className="[grid-area:head]">
           <SectionHeading
             eyebrow={text.eyebrow}
             title={
@@ -79,8 +81,9 @@ export function TableSetter({ locale = "en" }: { locale?: Locale }) {
             }
             intro={text.intro}
           />
+        </div>
 
-          <div data-reveal className="mt-10">
+        <div data-reveal className="[grid-area:controls]">
             <div className="flex items-end gap-5">
               <output htmlFor="guests-range" className="font-display text-[clamp(4.5rem,10vw,7rem)] leading-[0.8] tracking-[-0.04em] tabular-nums">
                 {String(guests).padStart(2, "0")}
@@ -154,16 +157,14 @@ export function TableSetter({ locale = "en" }: { locale?: Locale }) {
             </a>
             <p className="mt-4 text-sm text-muted">
               {text.over(MAX)}{" "}
-              <a href={phoneHref} className="text-clay-deep underline underline-offset-4">
+              <a href={phoneHref} className="inline-flex min-h-11 items-center text-clay-deep underline underline-offset-4">
                 {text.call(phoneDisplay)}
               </a>
-              .
             </p>
-          </div>
         </div>
 
         {/* The table sets itself */}
-        <div data-reveal className="relative overflow-hidden rounded-[2rem] bg-smoke p-4 sm:p-8">
+        <div data-reveal className="relative overflow-hidden rounded-[1.5rem] bg-smoke p-3 [grid-area:table] sm:p-8 lg:rounded-[2rem]">
           <svg
             viewBox={`0 0 ${VB_W} ${VB_H}`}
             role="img"

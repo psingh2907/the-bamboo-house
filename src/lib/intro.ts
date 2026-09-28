@@ -10,7 +10,8 @@ export function isIntroRunning(): boolean {
 
 /**
  * Runs before first paint (inlined in <head>). Shows the loader only on the
- * first page of a visit, never for reduced motion, and removes it after 6 s
- * even if the app's JavaScript never arrives.
+ * first page of a visit, never for reduced motion, never on slow connections
+ * (2G/3G or Data Saver — content first), and removes it after 6 s even if the
+ * app's JavaScript never arrives.
  */
-export const LOADER_INIT_SCRIPT = `try{var d=document.documentElement;if(!sessionStorage.getItem("${INTRO_STORAGE_KEY}")&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("is-loading");setTimeout(function(){d.classList.remove("is-loading")},6000)}}catch(e){}`;
+export const LOADER_INIT_SCRIPT = `try{var d=document.documentElement,c=navigator.connection,slow=c&&(c.saveData||/2g|3g/.test(c.effectiveType||""));if(!slow&&!sessionStorage.getItem("${INTRO_STORAGE_KEY}")&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("is-loading");setTimeout(function(){d.classList.remove("is-loading")},6000)}}catch(e){}`;

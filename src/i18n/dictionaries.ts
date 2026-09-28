@@ -54,6 +54,7 @@ const en = {
     accent: "Leave with a memory.",
     sub: "A family restaurant wrapped in bamboo, in Syamardanda near Devendranagar, Panna.",
     menu: "Explore the menu",
+    menuShort: "See menu",
     find: "Find us",
     google: "Google",
     perPerson: "Per person",
@@ -64,6 +65,7 @@ const en = {
     label: "Our idea",
     eyebrow: "01 — The idea",
     lead: "More than a meal.",
+    bodyShort: "Bamboo walls that glow at dusk, a thali still steaming, and a table for the whole family.",
     body: "Bamboo walls that glow at dusk. A thali that arrives still steaming. A table long enough for the whole family — and a reason to stop on your way through Panna.",
   },
   place: {
@@ -143,6 +145,8 @@ const en = {
     whatsapp: "WhatsApp",
     message: "Hello The Bamboo House, I'd like to ask about a visit.",
     map: "Map showing The Bamboo House, Syamardanda",
+    showMap: "Show map",
+    openMaps: "Open in Google Maps",
   },
   rail: {
     label: "On this page",
@@ -304,6 +308,7 @@ const hi: Dictionary = {
     accent: "यादें लेकर जाइए।",
     sub: "बाँस से सजा एक फ़ैमिली रेस्टोरेंट — देवेंद्रनगर के पास, श्यामरदंडा, पन्ना में।",
     menu: "मेन्यू देखें",
+    menuShort: "मेन्यू",
     find: "रास्ता देखें",
     google: "गूगल",
     perPerson: "प्रति व्यक्ति",
@@ -314,6 +319,7 @@ const hi: Dictionary = {
     label: "हमारी सोच",
     eyebrow: "01 — हमारी सोच",
     lead: "सिर्फ़ खाना नहीं।",
+    bodyShort: "शाम को जगमगाती बाँस की दीवारें, भाप उड़ाती थाली, और पूरे परिवार के लिए एक टेबल।",
     body: "शाम ढलते ही जगमगाती बाँस की दीवारें। भाप उड़ाती गरम थाली। पूरे परिवार के लिए लंबी मेज़ — और पन्ना के सफ़र में रुकने की एक वजह।",
   },
   place: {
@@ -393,6 +399,8 @@ const hi: Dictionary = {
     whatsapp: "WhatsApp",
     message: "नमस्ते द बैम्बू हाउस, मुझे आने के बारे में जानकारी चाहिए।",
     map: "नक्शे में द बैम्बू हाउस, श्यामरदंडा",
+    showMap: "नक्शा दिखाएँ",
+    openMaps: "Google Maps में खोलें",
   },
   rail: {
     label: "इस पेज पर",

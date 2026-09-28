@@ -14,7 +14,8 @@ export function Numbers({ locale = "en" }: { locale?: Locale }) {
     { value: closing, unit: text.untilUnit, label: text.until },
   ];
   return (
-    <section aria-label={text.label} className="bg-paper pb-24 sm:pb-32">
+    // Hidden on phones: the hero strip and the reviews section already carry these.
+    <section aria-label={text.label} className="hidden bg-paper pb-24 sm:pb-32 lg:block">
       <div className="container-x">
         <dl data-reveal-stagger className="grid grid-cols-2 border-t border-ink/15 lg:grid-cols-4">
           {numbers.map((n) => (

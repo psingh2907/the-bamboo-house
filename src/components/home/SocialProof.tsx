@@ -16,7 +16,7 @@ export function SocialProof({ locale = "en" }: { locale?: Locale }) {
   const text = t(locale).reviews;
 
   return (
-    <section aria-labelledby="reviews-title" className="lamp relative overflow-hidden bg-smoke-soft py-24 text-cream sm:py-32">
+    <section aria-labelledby="reviews-title" className="lamp relative overflow-hidden bg-smoke-soft py-16 text-cream sm:py-32">
       {/* Oversized rating as a backdrop */}
       <p
         aria-hidden="true"

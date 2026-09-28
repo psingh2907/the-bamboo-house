@@ -8,8 +8,10 @@ import { t } from "@/i18n/dictionaries";
 import { INTRO_DONE_EVENT, INTRO_STORAGE_KEY } from "@/lib/intro";
 
 const SEGMENTS = 10;
-const MIN_MS = 1000; // long enough to read as intentional
-const MAX_MS = 2600; // never hold a slow connection hostage
+// Long enough to read as intentional, never long enough to hold anyone up.
+// Phones get a shorter intro.
+const timing = () =>
+  window.matchMedia("(max-width: 767px)").matches ? { min: 700, max: 2000 } : { min: 1000, max: 2600 };
 const BLINDS = 5;
 
 // Progress at which each loader line appears.
@@ -66,6 +68,7 @@ export function Loader({ locale = "en" }: { locale?: Locale }) {
     window.addEventListener("keydown", onKey);
     const leaf = el.querySelector<SVGGElement>("[data-leaf]");
     const start = performance.now();
+    const { min: MIN_MS, max: MAX_MS } = timing();
     let real = 0.35; // the app has hydrated
     let shown = 0;
     let frame = 0;

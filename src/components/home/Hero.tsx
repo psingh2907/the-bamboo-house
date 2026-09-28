@@ -94,21 +94,27 @@ export function Hero({ locale = "en" }: { locale?: Locale }) {
         className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_70%_60%_at_50%_42%,rgba(214,150,70,0.22),transparent_70%)]"
       />
 
-      <div className="container-x relative flex flex-1 flex-col pt-32 pb-10 lg:pt-32 lg:pb-12">
+      <div className="container-x relative flex flex-1 flex-col pt-24 pb-8 lg:pt-32 lg:pb-12">
         <p data-hero-copy className="label intro-line text-center text-bamboo" style={{ animationDelay: "0.1s" }}>
           {locale === "hi" ? (
             <>
-              [ {business.categoryHi} · {business.addressHi.area}, {business.addressHi.district} ]
+              {/* Phones get the short version so the label stays on one line. */}
+              [ <span className="hidden sm:inline">{business.categoryHi} · </span>
+              {business.addressHi.area}, {business.addressHi.district} ]
             </>
           ) : (
             <>
-              [ <span lang="hi">{business.nameHi}</span> · {business.category} · {business.address.area}, {business.address.district} ]
+              [{" "}
+              <span className="hidden sm:inline">
+                <span lang="hi">{business.nameHi}</span> · {business.category} ·{" "}
+              </span>
+              {business.address.area}, {business.address.district} ]
             </>
           )}
         </p>
 
         {/* Plate + headline. On large screens the headline sits either side of the plate. */}
-        <div className="relative flex flex-1 flex-col items-center justify-center py-8 lg:py-0">
+        <div className="relative flex flex-1 flex-col items-center justify-center py-4 lg:py-0">
           <h1
             id="hero-title"
             data-hero-copy
@@ -122,7 +128,7 @@ export function Hero({ locale = "en" }: { locale?: Locale }) {
             </span>
           </h1>
 
-          <div className="relative mt-8 aspect-square w-[min(78vw,44svh)] lg:mt-0 lg:w-[min(60svh,36vw)]">
+          <div className="relative mt-5 aspect-square w-[min(64vw,34svh)] lg:mt-0 lg:w-[min(60svh,36vw)]">
             <div data-hero-guides className="absolute -inset-[25%]">
               <Guides />
             </div>
@@ -139,14 +145,15 @@ export function Hero({ locale = "en" }: { locale?: Locale }) {
           </div>
         </div>
 
-        <div data-hero-copy className="intro-line grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end" style={{ animationDelay: "0.7s" }}>
+        <div data-hero-copy className="intro-line grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-8" style={{ animationDelay: "0.7s" }}>
           <div className="mx-auto max-w-md text-center lg:mx-0 lg:text-left">
-            <p className="text-base leading-relaxed text-mist">
+            <p className="text-[0.95rem] leading-relaxed text-mist sm:text-base">
               {text.sub}
             </p>
-            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:justify-center sm:gap-3 lg:mt-6 lg:justify-start">
               <Button href={localePath(locale, "/menu")} icon="book">
-                {text.menu}
+                <span className="sm:hidden">{text.menuShort}</span>
+                <span className="hidden sm:inline">{text.menu}</span>
               </Button>
               <Button
                 href={directionsUrl}
@@ -162,20 +169,20 @@ export function Hero({ locale = "en" }: { locale?: Locale }) {
 
           <dl className="grid grid-cols-3 divide-x divide-smoke-line border-y border-smoke-line text-center lg:min-w-[30rem] lg:text-left">
             <div className="px-3 py-4 lg:px-5">
-              <dt className="label text-[0.6rem] text-mist">{text.google}</dt>
+              <dt className="label text-[0.7rem] text-mist">{text.google}</dt>
               <dd className="mt-1 flex items-center justify-center gap-1.5 font-display text-xl sm:text-2xl lg:justify-start">
                 {business.rating.value}
                 <Icon name="star" className="size-4 fill-bamboo text-bamboo" />
               </dd>
             </div>
             <div className="px-3 py-4 lg:px-5">
-              <dt className="label text-[0.6rem] text-mist">{text.perPerson}</dt>
+              <dt className="label text-[0.7rem] text-mist">{text.perPerson}</dt>
               <dd className="mt-1 font-display text-xl whitespace-nowrap sm:text-2xl">
                 ₹{business.priceRange.min}–{business.priceRange.max}
               </dd>
             </div>
             <div className="px-3 py-4 lg:px-5">
-              <dt className="label text-[0.6rem] text-mist">{text.today}</dt>
+              <dt className="label text-[0.7rem] text-mist">{text.today}</dt>
               <dd className="mt-2 text-xs leading-snug text-cream/90">
                 <OpenStatus locale={locale} />
               </dd>

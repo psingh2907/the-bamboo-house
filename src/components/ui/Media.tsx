@@ -36,7 +36,7 @@ export function Media({ visual, sizes, className, priority, showLabel = true, lo
       {!photo && showLabel && siteConfig.prototypeMode && (
         <span
           title={`${text.shot}: ${shot}`}
-          className="label pointer-events-none absolute bottom-2.5 left-2.5 rounded-full bg-smoke/70 px-2.5 py-1 text-[0.6rem] tracking-[0.14em] text-bamboo-light backdrop-blur-sm"
+          className="label pointer-events-none absolute bottom-2.5 left-2.5 rounded-full bg-smoke/70 px-2.5 py-1 text-[0.68rem] tracking-[0.12em] text-bamboo-light backdrop-blur-sm"
         >
           {text.placeholder}
         </span>

@@ -5,12 +5,13 @@ import { Accent } from "../ui/Accent";
 import { Button } from "../ui/Button";
 import { Media } from "../ui/Media";
 import { SectionHeading } from "../ui/SectionHeading";
+import { ScrollDots } from "../ui/ScrollDots";
 
 /** 4–6 visually strong dishes rather than the whole menu (brief §13). */
 export function SignatureDishes({ locale = "en" }: { locale?: Locale }) {
   const text = t(locale).dishes;
   return (
-    <section id="food" aria-labelledby="dishes-title" className="lamp scroll-mt-20 overflow-hidden bg-smoke py-24 text-cream sm:py-32">
+    <section id="food" aria-labelledby="dishes-title" className="lamp scroll-mt-20 overflow-hidden bg-smoke py-16 text-cream sm:py-32">
       <div className="container-x">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeading
@@ -33,9 +34,10 @@ export function SignatureDishes({ locale = "en" }: { locale?: Locale }) {
 
       {/* Phones: swipeable row. Desktop: grid. */}
       <ul
+        id="dish-cards"
         data-reveal-stagger
         data-dish-grid
-        className="no-scrollbar mt-14 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-2 sm:scroll-px-8 sm:px-8 lg:container-x lg:grid lg:grid-cols-3 lg:gap-x-6 lg:gap-y-14 lg:overflow-visible"
+        className="no-scrollbar mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-2 sm:scroll-px-8 sm:px-8 lg:container-x lg:grid lg:grid-cols-3 lg:gap-x-6 lg:gap-y-14 lg:overflow-visible"
       >
         {signatureDishes.map((dish) => (
           <li key={dish.name} className="group w-[78vw] max-w-sm shrink-0 snap-start sm:w-[44vw] lg:w-auto lg:max-w-none">
@@ -50,7 +52,7 @@ export function SignatureDishes({ locale = "en" }: { locale?: Locale }) {
             </div>
             <div className="mt-5 flex items-start justify-between gap-4">
               <div>
-                <p className="label text-[0.62rem] text-mist">[ {pick(locale, dish.category, dish.categoryHi)} ]</p>
+                <p className="label text-[0.7rem] text-mist">[ {pick(locale, dish.category, dish.categoryHi)} ]</p>
                 <h3 className="mt-2 font-display text-2xl">{pick(locale, dish.name, dish.nameHi)}</h3>
                 {/* The other language's name, small: Hindi under English and vice versa. */}
                 {dish.nameHi && (
@@ -67,6 +69,7 @@ export function SignatureDishes({ locale = "en" }: { locale?: Locale }) {
           </li>
         ))}
       </ul>
+      <ScrollDots targetId="dish-cards" count={signatureDishes.length} tone="dark" />
     </section>
   );
 }

@@ -27,7 +27,7 @@ const layout = [
 export function GalleryTeaser({ locale = "en" }: { locale?: Locale }) {
   const text = t(locale).gallery;
   return (
-    <section aria-labelledby="gallery-title" className="lamp bg-smoke py-24 text-cream sm:py-32">
+    <section aria-labelledby="gallery-title" className="lamp bg-smoke py-16 text-cream sm:py-32">
       <div className="container-x">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeading
@@ -59,7 +59,7 @@ export function GalleryTeaser({ locale = "en" }: { locale?: Locale }) {
           </div>
         </div>
 
-        <ul data-reveal-stagger className="mt-14 grid auto-rows-[38vw] grid-cols-2 gap-3 sm:auto-rows-[28vw] lg:auto-rows-[15vw] lg:grid-cols-6 lg:gap-4">
+        <ul data-reveal-stagger className="mt-10 grid auto-rows-[38vw] grid-cols-2 gap-3 sm:auto-rows-[28vw] lg:auto-rows-[15vw] lg:grid-cols-6 lg:gap-4">
           {picks.map((item, i) => (
             <li key={item.id} className={cn("relative overflow-hidden rounded-[1.25rem] bg-smoke-soft", layout[i])}>
               <Media visual={item} locale={locale} sizes="(min-width: 1024px) 50vw, 100vw" showLabel={false} />
